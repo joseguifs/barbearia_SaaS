@@ -1,13 +1,3 @@
----
-
-# 💈 BarberTime
-
-**Sistema SaaS para Agendamento de Barbearias**
-
-> “Este projeto propõe transformar a forma como barbearias gerenciam seus atendimentos.”
-
----
-
 ## 📌 Sobre o Projeto
 
 O **BarberTime** é uma plataforma web no modelo **SaaS (Software as a Service)** desenvolvida para otimizar o gerenciamento de agendamentos em barbearias.
