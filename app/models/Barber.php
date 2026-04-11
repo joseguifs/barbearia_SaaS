@@ -12,19 +12,19 @@ class Barber
     public function all()
     {
         $sql = "SELECT 
-                    b.id_barbeiro,
-                    b.nome,
-                    COALESCE(
-                        GROUP_CONCAT(s.nome ORDER BY s.nome SEPARATOR ' + '),
-                        'Sem serviços cadastrados'
-                    ) AS especialidades
-                FROM barbeiro b
-                LEFT JOIN barbeiro_servico bs 
-                    ON bs.id_barbeiro = b.id_barbeiro
-                LEFT JOIN servico s 
-                    ON s.id_servico = bs.id_servico
-                GROUP BY b.id_barbeiro, b.nome
-                ORDER BY b.nome ASC";
+            b.id_barbeiro,
+            b.nome,
+            COALESCE(
+                GROUP_CONCAT(DISTINCT s.nome ORDER BY s.nome SEPARATOR ' | '),
+                'Sem serviços cadastrados'
+            ) AS especialidades
+        FROM barbeiro b
+        LEFT JOIN barbeiro_servico bs 
+            ON bs.id_barbeiro = b.id_barbeiro
+        LEFT JOIN servico s 
+            ON s.id_servico = bs.id_servico
+        GROUP BY b.id_barbeiro, b.nome
+        ORDER BY b.nome ASC";
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute();
