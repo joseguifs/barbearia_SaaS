@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../models/Barber.php';
 require_once __DIR__ . '/../models/Service.php';
 require_once __DIR__ . '/../models/Scheduling.php';
-require_once __DIR__ . '/../models/Cliente.php';
+require_once __DIR__ . '/../models/Client.php';
 
 class SchedulingController
 {
