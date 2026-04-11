@@ -338,4 +338,27 @@ body {
         width: 54px;
         height: 54px;
     }
+
+    .success-message {
+    max-width: 980px;
+    margin: 0 auto 20px;
+    background: rgba(46, 125, 50, 0.15);
+    border: 1px solid rgba(76, 175, 80, 0.6);
+    color: #d7ffd9;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-weight: bold;
+    }
+
+    .field-group select {
+    width: 100%;
+    background: var(--input-bg);
+    border: 1px solid rgba(182, 134, 63, 0.45);
+    border-radius: 10px;
+    color: var(--text);
+    padding: 14px 16px;
+    font-size: 15px;
+    outline: none;
+    transition: 0.25s ease;
+    }
 }

@@ -4,22 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Novo Agendamento</title>
-    <link rel="stylesheet" href="/barbearia/public/css/agendamento-create.css">
+    <link rel="stylesheet" href="/barbearia_SaaS/app/css/scheduling.css">
 </head>
 <body>
     <header class="topbar">
         <div class="logo">BARBERTIME</div>
 
         <div class="user-area">
-            <span class="user-name">
-                <?= isset($_SESSION['usuario_nome']) ? htmlspecialchars($_SESSION['usuario_nome']) : 'FULANO DE TAL' ?>
-            </span>
+            <span class="user-name">AGENDAMENTO</span>
             <div class="avatar"></div>
         </div>
     </header>
 
     <main class="page">
-        <form action="/barbearia/public/index.php?action=agendamento_store" method="POST" class="schedule-form">
+
+        <?php if (!empty($success)): ?>
+            <div class="success-message">
+                Agendamento cadastrado com sucesso.
+            </div>
+        <?php endif; ?>
+
+        <form action="index.php?action=scheduling_store" method="POST" class="schedule-form">
+
+            <!-- CLIENTE -->
+            <section class="card">
+                <h2>Selecione o cliente</h2>
+
+                <div class="field-group">
+                    <label for="cliente_id">Cliente</label>
+                    <select id="cliente_id" name="cliente_id" required>
+                        <option value="">Selecione um cliente</option>
+                        <?php if (!empty($clientes)): ?>
+                            <?php foreach ($clientes as $cliente): ?>
+                                <option value="<?= $cliente['id_cliente'] ?>">
+                                    <?= htmlspecialchars($cliente['nome']) ?>
+                                    <?php if (!empty($cliente['email'])): ?>
+                                        - <?= htmlspecialchars($cliente['email']) ?>
+                                    <?php endif; ?>
+                                </option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                </div>
+            </section>
 
             <!-- BARBEIRO -->
             <section class="card">
@@ -32,14 +59,15 @@
                                 <input
                                     type="radio"
                                     name="barbeiro_id"
-                                    value="<?= $barbeiro['id'] ?>"
+                                    value="<?= $barbeiro['id_barbeiro'] ?>"
                                     required
                                 >
+
                                 <span class="barbeiro-avatar"></span>
 
                                 <span class="barbeiro-info">
                                     <strong><?= htmlspecialchars($barbeiro['nome']) ?></strong>
-                                    <small><?= htmlspecialchars($barbeiro['especialidade'] ?? 'Barbeiro') ?></small>
+                                    <small><?= htmlspecialchars($barbeiro['especialidades'] ?? 'Sem serviços cadastrados') ?></small>
                                 </span>
 
                                 <span class="checkmark">✔</span>
@@ -51,7 +79,7 @@
                 </div>
             </section>
 
-            <!-- SERVIÇOS MANY TO MANY -->
+            <!-- SERVIÇOS -->
             <section class="card">
                 <h2>Selecione os serviços</h2>
                 <p class="section-text">Você pode marcar um ou mais serviços.</p>
@@ -63,7 +91,7 @@
                                 <input
                                     type="checkbox"
                                     name="servicos[]"
-                                    value="<?= $servico['id'] ?>"
+                                    value="<?= $servico['id_servico'] ?>"
                                 >
 
                                 <span class="servico-content">
