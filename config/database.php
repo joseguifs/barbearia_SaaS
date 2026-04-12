@@ -1,6 +1,6 @@
 <?php
 $host = "localhost";
-$db = "barbearia";
+$db = "barbertime";
 $user = "root";
 $pass = "";
 
