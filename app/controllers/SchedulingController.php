@@ -88,5 +88,23 @@ class SchedulingController
 
     public function get()
     {
+        $idAgendamento = $_GET['id'] ?? null;
+
+        if (!$idAgendamento) {
+            echo "Agendamento não informado.";
+            return;
+        }
+
+        $agendamento = $this->schedulingModel->find($idAgendamento);
+
+        if (!$agendamento) {
+            echo "Agendamento não encontrado.";
+            return;
+        }
+
+        $servicos = $this->schedulingModel->getServicesBySchedulingId($idAgendamento);
+        $valorTotal = $this->schedulingModel->getTotalValueBySchedulingId($idAgendamento);
+
+        require_once __DIR__ . '/../views/scheduling/get.php';
     }  
 }
