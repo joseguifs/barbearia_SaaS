@@ -1,0 +1,43 @@
+.details-page {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+}
+
+.details-card {
+    width: 100%;
+    max-width: 470px;
+    background: rgba(18, 18, 22, 0.96);
+    border: 1px solid rgba(182, 134, 63, 0.85);
+    border-radius: 6px;
+    padding: 26px 28px;
+    box-shadow: var(--shadow);
+}
+
+.detail-item {
+    margin-bottom: 28px;
+}
+
+.detail-item:last-child {
+    margin-bottom: 0;
+}
+
+.detail-label {
+    display: block;
+    color: var(--primary);
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    line-height: 1.2;
+}
+
+.detail-value {
+    margin: 0;
+    color: var(--text);
+    font-size: 18px;
+    line-height: 1.35;
+    font-weight: 500;
+}
