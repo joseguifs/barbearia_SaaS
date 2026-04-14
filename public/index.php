@@ -1,33 +1,29 @@
+no seu index tenta isso:
+
 <?php
 
-// Conexão com banco
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../app/controllers/SchedulingReviewController.php';
 
-// Controllers
-require_once __DIR__ . '/../app/controllers/review_pending.php';
+$action = $_GET['action'] ?? 'home';
 
-// Captura da ação
-$action = $_GET['action'] ?? '';
+$reviewController = new SchedulingReviewController($pdo);
 
-// Instancia controller
-$controller = new AdminController($pdo);
 
-// Rotas
 switch ($action) {
-
     case 'review_pending':
-        $controller->pending();
+        $reviewController->pending();
         break;
 
     case 'review_accept':
-        $controller->accept();
+        $reviewController->accept();
         break;
 
     case 'review_reject':
-        $controller->reject();
+        $reviewController->reject();
         break;
 
     default:
-        echo "Rota inválida";
+        echo "Ação inválida.";
         break;
 }
