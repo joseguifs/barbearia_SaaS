@@ -1,7 +1,7 @@
 <?php
 
 $host = 'localhost';
-$db = 'nome_do_seu_banco';
+$db = 'barbertime';
 $user = 'root';
 $pass = '';
 
