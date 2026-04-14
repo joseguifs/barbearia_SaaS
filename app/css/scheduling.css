@@ -361,4 +361,14 @@ body {
     outline: none;
     transition: 0.25s ease;
     }
+    .error-message {
+    max-width: 980px;
+    margin: 0 auto 20px;
+    background: rgba(183, 28, 28, 0.18);
+    border: 1px solid rgba(183, 28, 28, 0.55);
+    color: #ffdada;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-weight: bold;
+    }
 }

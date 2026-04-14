@@ -18,9 +18,25 @@
 
     <main class="page">
 
+        <?php
+        $formData = $formData ?? [];
+        $selectedCliente = $formData['cliente_id'] ?? '';
+        $selectedBarbeiro = $formData['barbeiro_id'] ?? '';
+        $selectedServicos = $formData['servicos'] ?? [];
+        $selectedData = $formData['data_agendamento'] ?? '';
+        $selectedHora = $formData['hora_agendamento'] ?? '';
+        $selectedDescricao = $formData['descricao'] ?? '';
+        ?>
+
         <?php if (!empty($success)): ?>
             <div class="success-message">
                 Agendamento cadastrado com sucesso.
+            </div>
+        <?php endif; ?>
+
+        <?php if (!empty($errorMessage)): ?>
+            <div class="error-message">
+                <?= htmlspecialchars($errorMessage) ?>
             </div>
         <?php endif; ?>
 
@@ -36,7 +52,10 @@
                         <option value="">Selecione um cliente</option>
                         <?php if (!empty($clientes)): ?>
                             <?php foreach ($clientes as $cliente): ?>
-                                <option value="<?= $cliente['id_cliente'] ?>">
+                                <option
+                                    value="<?= $cliente['id_cliente'] ?>"
+                                    <?= (string)$selectedCliente === (string)$cliente['id_cliente'] ? 'selected' : '' ?>
+                                >
                                     <?= htmlspecialchars($cliente['nome']) ?>
                                     <?php if (!empty($cliente['email'])): ?>
                                         - <?= htmlspecialchars($cliente['email']) ?>
@@ -60,6 +79,7 @@
                                     type="radio"
                                     name="barbeiro_id"
                                     value="<?= $barbeiro['id_barbeiro'] ?>"
+                                    <?= (string)$selectedBarbeiro === (string)$barbeiro['id_barbeiro'] ? 'checked' : '' ?>
                                     required
                                 >
 
@@ -92,6 +112,7 @@
                                     type="checkbox"
                                     name="servicos[]"
                                     value="<?= $servico['id_servico'] ?>"
+                                    <?= in_array((int)$servico['id_servico'], array_map('intval', $selectedServicos), true) ? 'checked' : '' ?>
                                 >
 
                                 <span class="servico-content">
@@ -122,6 +143,7 @@
                             type="date"
                             id="data_agendamento"
                             name="data_agendamento"
+                            value="<?= htmlspecialchars($selectedData) ?>"
                             required
                         >
                     </div>
@@ -130,16 +152,14 @@
                         <label for="hora_agendamento">Horário</label>
                         <select id="hora_agendamento" name="hora_agendamento" required>
                             <option value="">Selecione um horário</option>
-                            <option value="09:00">09:00</option>
-                            <option value="09:30">09:30</option>
-                            <option value="10:00">10:00</option>
-                            <option value="10:30">10:30</option>
-                            <option value="11:00">11:00</option>
-                            <option value="14:00">14:00</option>
-                            <option value="14:30">14:30</option>
-                            <option value="15:00">15:00</option>
-                            <option value="15:30">15:30</option>
-                            <option value="16:00">16:00</option>
+                            <?php
+                            $horarios = ['09:00','09:30','10:00','10:30','11:00','14:00','14:30','15:00','15:30','16:00'];
+                            foreach ($horarios as $horario):
+                            ?>
+                                <option value="<?= $horario ?>" <?= $selectedHora === $horario ? 'selected' : '' ?>>
+                                    <?= $horario ?>
+                                </option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                 </div>
@@ -156,7 +176,7 @@
                         name="descricao"
                         rows="5"
                         placeholder="Ex.: preferência de corte, observações sobre barba, encaixe, etc."
-                    ></textarea>
+                    ><?= htmlspecialchars($selectedDescricao) ?></textarea>
                 </div>
             </section>
 
