@@ -4,7 +4,7 @@
 require_once __DIR__ . '/../config/database.php';
 
 // Controllers
-require_once __DIR__ . '/../app/controllers/AdminController.php';
+require_once __DIR__ . '/../app/controllers/review_pending.php';
 
 // Captura da ação
 $action = $_GET['action'] ?? '';
