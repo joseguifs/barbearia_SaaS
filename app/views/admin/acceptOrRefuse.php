@@ -1,5 +1,3 @@
-dentro de admin/acceptOrRefuse clc esse cod: 
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
