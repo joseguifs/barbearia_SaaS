@@ -1,3 +1,47 @@
+.details-page {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+}
+
+.details-card {
+    width: 100%;
+    max-width: 470px;
+    background: rgba(18, 18, 22, 0.96);
+    border: 1px solid rgba(182, 134, 63, 0.85);
+    border-radius: 6px;
+    padding: 26px 28px;
+    box-shadow: var(--shadow);
+}
+
+.detail-item {
+    margin-bottom: 28px;
+}
+
+.detail-item:last-child {
+    margin-bottom: 0;
+}
+
+.detail-label {
+    display: block;
+    color: var(--primary);
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    line-height: 1.2;
+}
+
+.detail-value {
+    margin: 0;
+    color: var(--text);
+    font-size: 18px;
+    line-height: 1.35;
+    font-weight: 500;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -370,5 +414,89 @@ body {
     padding: 14px 18px;
     border-radius: 10px;
     font-weight: bold;
+    }
+
+    .details-page {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+}
+
+.details-card {
+    width: 100%;
+    max-width: 470px;
+    background: rgba(18, 18, 22, 0.96);
+    border: 1px solid rgba(182, 134, 63, 0.85);
+    border-radius: 6px;
+    padding: 26px 28px;
+    box-shadow: var(--shadow);
+}
+
+.detail-item {
+    margin-bottom: 28px;
+}
+
+.detail-item:last-child {
+    margin-bottom: 0;
+}
+
+.detail-label {
+    display: block;
+    color: var(--primary);
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    line-height: 1.2;
+}
+
+.detail-value {
+    margin: 0;
+    color: var(--text);
+    font-size: 18px;
+    line-height: 1.35;
+    font-weight: 500;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.status-pendente {
+    background: rgba(255, 193, 7, 0.15);
+    color: #ffd54f;
+    border: 1px solid rgba(255, 193, 7, 0.45);
+}
+
+.status-agendado {
+    background: rgba(76, 175, 80, 0.15);
+    color: #81c784;
+    border: 1px solid rgba(76, 175, 80, 0.45);
+}
+
+.status-cancelado {
+    background: rgba(244, 67, 54, 0.15);
+    color: #ef9a9a;
+    border: 1px solid rgba(244, 67, 54, 0.45);
+}
+
+.status-concluido {
+    background: rgba(33, 150, 243, 0.15);
+    color: #90caf9;
+    border: 1px solid rgba(33, 150, 243, 0.45);
+}
+
+.status-faltou {
+    background: rgba(158, 158, 158, 0.18);
+    color: #e0e0e0;
+    border: 1px solid rgba(158, 158, 158, 0.45);
     }
 }
