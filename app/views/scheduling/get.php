@@ -41,6 +41,19 @@ function formatarDataHoraExtenso($dataHora)
     return "{$diaSemana}, {$dia} de {$mes} às {$hora}";
 }
 
+function formatarStatus($status)
+{
+    $statusFormatado = [
+        'pendente' => 'Pendente',
+        'agendado' => 'Agendado',
+        'cancelado' => 'Cancelado',
+        'concluido' => 'Concluído',
+        'faltou' => 'Faltou'
+    ];
+
+    return $statusFormatado[$status] ?? ucfirst($status);
+}
+
 $nomesServicos = [];
 
 foreach ($servicos as $servico) {
@@ -50,6 +63,8 @@ foreach ($servicos as $servico) {
 $servicoTexto = !empty($nomesServicos)
     ? implode(' + ', $nomesServicos)
     : 'Nenhum serviço informado';
+
+$status = $agendamento['status'] ?? 'pendente';
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -64,6 +79,15 @@ $servicoTexto = !empty($nomesServicos)
 <body>
     <main class="details-page">
         <section class="details-card">
+
+            <div class="detail-item">
+                <span class="detail-label">Status</span>
+                <p class="detail-value">
+                    <span class="status-badge status-<?= e($status) ?>">
+                        <?= e(formatarStatus($status)) ?>
+                    </span>
+                </p>
+            </div>
 
             <div class="detail-item">
                 <span class="detail-label">Serviço</span>
