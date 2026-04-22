@@ -34,18 +34,4 @@ class Client
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
-
-    public function findByEmail($email)
-    {
-        $sql = "SELECT id_cliente, nome, email, telefone, senha
-                FROM cliente
-                WHERE email = :email
-                LIMIT 1";
-
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->bindValue(':email', $email);
-        $stmt->execute();
-
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
 }
