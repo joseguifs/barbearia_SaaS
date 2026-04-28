@@ -1,18 +1,15 @@
 <?php
 
 require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../app/controllers/SchedulingController.php';
-require_once __DIR__ . '/../app/controllers/UserController.php';
-require_once __DIR__ . '/../app/controllers/SchedulingReviewController.php';
 require_once __DIR__ . '/../app/controllers/AuthController.php';
+require_once __DIR__ . '/../app/controllers/UserController.php';
+require_once __DIR__ . '/../app/controllers/SchedulingController.php';
 
-
-$action = $_GET['action'] ?? 'home';
+$action = $_GET['action'] ?? 'login';
 
 $authController = new AuthController($pdo);
-$schedulingController = new SchedulingController($pdo);
 $userController = new UserController($pdo);
-$reviewController = new SchedulingReviewController($pdo);
+$schedulingController = new SchedulingController($pdo);
 
 switch ($action) {
     case 'login':
@@ -31,6 +28,14 @@ switch ($action) {
         $authController->logout();
         break;
 
+    case 'user_create':
+        $userController->create();
+        break;
+
+    case 'user_store':
+        $userController->store();
+        break;
+
     case 'scheduling_create':
         $schedulingController->create();
         break;
@@ -43,26 +48,16 @@ switch ($action) {
         $schedulingController->get();
         break;
 
-    case 'user_create':
-        $userController->create();
+    case 'scheduling_edit':
+        $schedulingController->edit();
         break;
 
-    case 'user_store':
-        $userController->store();
+    case 'scheduling_update':
+        $schedulingController->update();
         break;
-
-    case 'review_pending':
-        $reviewController->pending();
+    case 'logout':
+        $authController->logout();
         break;
-
-    case 'review_accept':
-        $reviewController->accept();
-        break;
-
-    case 'review_reject':
-        $reviewController->reject();
-        break;	
-
     default:
         echo "Rota não encontrada.";
         break;
