@@ -6,12 +6,14 @@ require_once __DIR__ . '/../models/User.php';
 
 class AuthController
 {
+    private $pdo;
     private $clientModel;
     private $schedulingModel;
     private $userModel;
 
     public function __construct($pdo)
     {
+        $this->pdo = $pdo;
         $this->clientModel = new Client($pdo);
         $this->schedulingModel = new Scheduling($pdo);
         $this->userModel = new User($pdo);
@@ -196,6 +198,7 @@ class AuthController
 
         if (ini_get('session.use_cookies')) {
             $params = session_get_cookie_params();
+
             setcookie(
                 session_name(),
                 '',
