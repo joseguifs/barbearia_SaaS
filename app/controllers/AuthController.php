@@ -1,14 +1,19 @@
 <?php
 
 require_once __DIR__ . '/../models/Client.php';
+require_once __DIR__ . '/../models/Scheduling.php';
 
 class AuthController
 {
+    private $pdo;
     private $clientModel;
+    private $schedulingModel;
 
     public function __construct($pdo)
     {
+        $this->pdo = $pdo;
         $this->clientModel = new Client($pdo);
+        $this->schedulingModel = new Scheduling($pdo);
 
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
@@ -17,6 +22,13 @@ class AuthController
 
     private function renderLogin(?string $errorMessage = null, array $old = [])
     {
+        $errors = [];
+        $data = $old;
+
+        if ($errorMessage !== null) {
+            $errors['geral'] = $errorMessage;
+        }
+
         require __DIR__ . '/../views/auth/login.php';
     }
 
@@ -74,6 +86,7 @@ class AuthController
         }
 
         $clienteNome = $_SESSION['cliente_nome'] ?? 'Usuário';
+        $proximoAgendamento = $this->schedulingModel->getNextByClient($_SESSION['id_cliente']);
 
         require __DIR__ . '/../views/home/index.php';
     }
@@ -84,6 +97,7 @@ class AuthController
 
         if (ini_get('session.use_cookies')) {
             $params = session_get_cookie_params();
+
             setcookie(
                 session_name(),
                 '',

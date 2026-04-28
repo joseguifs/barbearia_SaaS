@@ -1,18 +1,18 @@
 <?php
 
 require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../app/controllers/SchedulingController.php';
+require_once __DIR__ . '/../app/controllers/AuthController.php';
 require_once __DIR__ . '/../app/controllers/UserController.php';
 require_once __DIR__ . '/../app/controllers/SchedulingReviewController.php';
 require_once __DIR__ . '/../app/controllers/AuthController.php';
 
 
-$action = $_GET['action'] ?? 'home';
+$action = $_GET['action'] ?? 'login';
 
 $authController = new AuthController($pdo);
 $schedulingController = new SchedulingController($pdo);
 $userController = new UserController($pdo);
-$reviewController = new SchedulingReviewController($pdo);
+$schedulingController = new SchedulingController($pdo);
 
 switch ($action) {
     case 'login':
@@ -35,12 +35,16 @@ switch ($action) {
         $schedulingController->create();
         break;
 
-    case 'scheduling_store':
-        $schedulingController->store();
+    case 'authenticate':
+        $authController->authenticate();
         break;
 
-    case 'scheduling_get':
-        $schedulingController->get();
+    case 'home':
+        $authController->home();
+        break;
+
+    case 'logout':
+        $authController->logout();
         break;
 
     case 'user_create':
@@ -51,18 +55,28 @@ switch ($action) {
         $userController->store();
         break;
 
-    case 'review_pending':
-        $reviewController->pending();
+    case 'scheduling_create':
+        $schedulingController->create();
         break;
 
-    case 'review_accept':
-        $reviewController->accept();
+    case 'scheduling_store':
+        $schedulingController->store();
         break;
 
-    case 'review_reject':
-        $reviewController->reject();
-        break;	
+    case 'scheduling_get':
+        $schedulingController->get();
+        break;
 
+    case 'scheduling_edit':
+        $schedulingController->edit();
+        break;
+
+    case 'scheduling_update':
+        $schedulingController->update();
+        break;
+    case 'logout':
+        $authController->logout();
+        break;
     default:
         echo "Rota não encontrada.";
         break;
