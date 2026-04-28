@@ -1,0 +1,13 @@
+[33mef19768[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeature/User-AgendamentoGET[m[33m, [m[1;31morigin/feature/User-AgendamentoGET[m[33m)[m HTML-Visualização de  informações do agendamento
+[33mc4b0b4a[m Ajustes no css da tela de visualizacao de agendamento
+[33m728b641[m[33m ([m[1;31morigin/develop[m[33m, [m[1;32mdevelop[m[33m)[m mudança no nome do db
+[33m2e180d0[m Barber e scheduling model
+[33m007a9f2[m configs para databse.php
+[33m2e2b54a[m index do admin
+[33m08f3c17[m get view
+[33mc426b19[m css do admin
+[33m335dadb[m controller e views de admin e scheduling
+[33m57c7498[m views dos usuarios
+[33m624ee78[m user controller e css do user
+[33mfdfb09e[m index e database develop
+[33m2a2357a[m Initial commit

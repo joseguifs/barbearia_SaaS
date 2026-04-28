@@ -5,12 +5,13 @@ require_once __DIR__ . '/../app/controllers/AuthController.php';
 require_once __DIR__ . '/../app/controllers/UserController.php';
 require_once __DIR__ . '/../app/controllers/SchedulingReviewController.php';
 require_once __DIR__ . '/../app/controllers/AuthController.php';
+require_once __DIR__ . '/../app/controllers/UserController.php';
+require_once __DIR__ . '/../app/controllers/SchedulingController.php';
 
 
 $action = $_GET['action'] ?? 'login';
 
 $authController = new AuthController($pdo);
-$schedulingController = new SchedulingController($pdo);
 $userController = new UserController($pdo);
 $schedulingController = new SchedulingController($pdo);
 
@@ -23,12 +24,36 @@ switch ($action) {
         $authController->authenticate();
         break;
 
+    case 'forgot_password':
+        $authController->forgotPassword();
+        break;
+
+    case 'forgot_password_submit':
+        $authController->handleForgotPassword();
+        break;
+
+    case 'reset_password_form':
+        $authController->resetPasswordForm();
+        break;
+
+    case 'reset_password':
+        $authController->resetPassword();
+        break;
+
     case 'home':
         $authController->home();
         break;
 
     case 'logout':
         $authController->logout();
+        break;
+
+    case 'user_create':
+        $userController->create();
+        break;
+
+    case 'user_store':
+        $userController->store();
         break;
 
     case 'scheduling_create':
@@ -45,6 +70,14 @@ switch ($action) {
 
     case 'logout':
         $authController->logout();
+        break;
+
+    case 'scheduling_edit':
+        $schedulingController->edit();
+        break;
+
+    case 'scheduling_update':
+        $schedulingController->update();
         break;
 
     case 'user_create':

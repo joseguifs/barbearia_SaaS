@@ -37,4 +37,17 @@ class User
 
         return $stmt->execute();
     }
+
+    public function updatePassword($idCliente, $senhaHash)
+{
+    $sql = "UPDATE cliente
+            SET senha = :senha
+            WHERE id_cliente = :id_cliente";
+
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->bindValue(':senha', $senhaHash);
+    $stmt->bindValue(':id_cliente', $idCliente, PDO::PARAM_INT);
+
+    return $stmt->execute();
+}
 }
