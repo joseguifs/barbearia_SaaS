@@ -4,4 +4,4 @@ Nesta seção de planejamento será documentado todo o processo de desenvolvimen
 
 A seguir anexaremos os arquivos contendo todas as informações sobre cada sprint.
 
-**Sprint 1**: [*Planejamento Sprint 1*](Markdowns/Sprint2.md)
+**Sprint 1**: [*Planejamento Sprint 1*](Markdowns/Sprint1.md)
