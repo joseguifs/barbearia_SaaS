@@ -21,6 +21,17 @@ switch ($action) {
     case 'login':
         $authController->login();
         break;
+    case 'review_pending':
+        $reviewController->pending();
+        break;
+
+    case 'review_accept':
+        $reviewController->accept();
+        break;
+
+    case 'review_reject':
+        $reviewController->reject();
+        break;
 
     case 'home':
         $authController->home();
