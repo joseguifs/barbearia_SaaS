@@ -1,9 +1,3 @@
-# Planejamento
-
-Nesta seção de planejamento será documentado todo o processo de desenvolvimento e organização das sprints, tais como: valor da sprint, funcionalidades, responsáveis, descrição das funcionalidades e uma tabela indicando quem irá revisar as funcionalidades dos outros membros em cada sprint.
-
----
-
 ## Sprint 1: Registro de clientes e agendamento de horário
 
 **Valor da Sprint:**  
