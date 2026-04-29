@@ -1,7 +1,6 @@
 <?php
-
 $host = "localhost";
-$db = "barbertime"; 
+$db = "barbertime";
 $user = "root";
 $pass = "";
 
@@ -12,3 +11,4 @@ try {
 } catch (PDOException $e) {
     die("Erro na conexão: " . $e->getMessage());
 }
+?>

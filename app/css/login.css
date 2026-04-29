@@ -1,0 +1,189 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --gold: #c99753;
+  --gold-hover: #d9aa68;
+  --text: #ffffff;
+  --text-soft: rgba(255, 255, 255, 0.72);
+  --line: rgba(255, 255, 255, 0.28);
+  --card-bg: rgba(20, 16, 14, 0.42);
+  --card-border: rgba(255, 255, 255, 0.10);
+  --error-bg: rgba(120, 30, 30, 0.25);
+  --error-border: rgba(255, 140, 140, 0.35);
+  --error-text: #ffd6d6;
+}
+
+body {
+  min-height: 100vh;
+  font-family: Arial, Helvetica, sans-serif;
+  color: var(--text);
+}
+
+.auth-page {
+  min-height: 100vh;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background: url('/BARBEARIA_SAAS/public/assets/images/backgroundbarbearia.jpg') center center / cover no-repeat;
+}
+
+.auth-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.50);
+}
+
+.auth-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 450px;
+  padding: 34px 32px 30px;
+  border-radius: 22px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+.auth-title {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 28px;
+}
+
+.auth-form {
+  display: block;
+}
+
+.form-group {
+  margin-bottom: 22px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: var(--text);
+}
+
+.form-group input[type="email"],
+.form-group input[type="password"] {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  color: white;
+  font-size: 1rem;
+  padding: 12px 2px 10px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.form-group input::placeholder {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.form-group input:focus {
+  border-bottom-color: var(--gold);
+}
+
+.login-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 0 26px;
+}
+
+.remember {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.98rem;
+  color: var(--text);
+}
+
+.remember input {
+  accent-color: var(--gold);
+}
+
+.forgot-password {
+  color: var(--gold);
+  text-decoration: none;
+  font-size: 0.98rem;
+  font-weight: 500;
+  transition: 0.2s ease;
+}
+
+.forgot-password:hover {
+  color: var(--gold-hover);
+}
+
+.submit-btn {
+  width: 100%;
+  height: 50px;
+  border: none;
+  border-radius: 12px;
+  background: var(--gold);
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.submit-btn:hover {
+  background: var(--gold-hover);
+  transform: translateY(-1px);
+}
+
+.alert {
+  width: 100%;
+  margin-bottom: 18px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.error {
+  background: var(--error-bg);
+  color: var(--error-text);
+  border: 1px solid var(--error-border);
+}
+
+.error-text {
+  display: block;
+  color: var(--error-text);
+  font-size: 0.90rem;
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+@media (max-width: 520px) {
+  .auth-card {
+    padding: 26px 20px;
+    border-radius: 18px;
+  }
+
+  .auth-title {
+    font-size: 1.7rem;
+  }
+
+  .login-options {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
