@@ -48,20 +48,6 @@
       color: #fff;
     }
 
-    .brand-title {
-      font-size: 2.2rem;
-      font-weight: 300;
-      margin-bottom: 10px;
-      letter-spacing: 1px;
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
-    }
-
-    .brand-subtitle {
-      font-size: 0.95rem;
-      color: rgba(255, 255, 255, 0.85);
-      margin-bottom: 28px;
-    }
-
     .login-box {
       background: rgba(15, 15, 15, 0.45);
       border: 1px solid rgba(255, 255, 255, 0.12);
@@ -145,11 +131,33 @@
       letter-spacing: 0.5px;
       cursor: pointer;
       transition: transform 0.2s ease, opacity 0.2s ease;
+      margin-bottom: 14px;
     }
 
     .btn-login:hover {
       transform: translateY(-2px);
       opacity: 0.96;
+    }
+
+    .btn-register {
+      display: block;
+      width: 100%;
+      text-align: center;
+      text-decoration: none;
+      border: 1px solid rgba(231, 196, 141, 0.7);
+      border-radius: 10px;
+      color: #e7c48d;
+      padding: 14px;
+      font-size: 1rem;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+      transition: 0.2s ease;
+    }
+
+    .btn-register:hover {
+      background: rgba(231, 196, 141, 0.12);
+      color: #fff;
+      border-color: #e7c48d;
     }
 
     .footer-text {
@@ -160,10 +168,6 @@
     }
 
     @media (max-width: 480px) {
-      .brand-title {
-        font-size: 1.8rem;
-      }
-
       .login-box {
         padding: 28px 22px;
       }
@@ -180,7 +184,7 @@
     <div class="login-box">
       <h2>Login do Usuário</h2>
 
-      <form action="#" method="post">
+      <form action="index.php?action=login" method="post">
         <div class="input-group">
           <label for="email">E-mail</label>
           <input type="email" id="email" name="email" placeholder="Digite seu e-mail" required>
@@ -199,9 +203,10 @@
         </div>
 
         <button type="submit" class="btn-login">ENTRAR</button>
+
+        <a href="index.php?action=user_create" class="btn-register">CRIAR CONTA</a>
       </form>
     </div>
-
   </div>
 </body>
 </html>
