@@ -37,6 +37,21 @@ switch ($action) {
     case 'scheduling_create':
         $schedulingController->create();
         break;
+    case 'forgot_password':
+        $authController->forgotPassword();
+        break;
+
+    case 'forgot_password_submit':
+        $authController->handleForgotPassword();
+        break;
+
+    case 'reset_password_form':
+        $authController->resetPasswordForm();
+        break;
+
+    case 'reset_password':
+        $authController->resetPassword();
+        break;
 
     case 'authenticate':
         $authController->authenticate();
