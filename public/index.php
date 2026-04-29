@@ -14,6 +14,8 @@ $action = $_GET['action'] ?? 'login';
 $authController = new AuthController($pdo);
 $userController = new UserController($pdo);
 $schedulingController = new SchedulingController($pdo);
+$reviewController = new SchedulingReviewController($pdo);
+
 
 switch ($action) {
     case 'login':
@@ -24,14 +26,6 @@ switch ($action) {
         $authController->home();
         break;
     
-    case 'forgot_password':
-        $authController->forgotPassword();
-        break;
-
-    case 'logout':
-        $authController->logout();
-        break;
-
     case 'user_create':
         $userController->create();
         break;
@@ -91,9 +85,7 @@ switch ($action) {
     case 'scheduling_update':
         $schedulingController->update();
         break;
-    case 'logout':
-        $authController->logout();
-        break;
+
     default:
         echo "Rota não encontrada.";
         break;
