@@ -20,28 +20,12 @@ switch ($action) {
         $authController->login();
         break;
 
-    case 'authenticate':
-        $authController->authenticate();
-        break;
-
-    case 'forgot_password':
-        $authController->forgotPassword();
-        break;
-
-    case 'forgot_password_submit':
-        $authController->handleForgotPassword();
-        break;
-
-    case 'reset_password_form':
-        $authController->resetPasswordForm();
-        break;
-
-    case 'reset_password':
-        $authController->resetPassword();
-        break;
-
     case 'home':
         $authController->home();
+        break;
+    
+    case 'forgot_password':
+        $authController->forgotPassword();
         break;
 
     case 'logout':
