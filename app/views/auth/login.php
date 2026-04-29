@@ -226,7 +226,7 @@ $old = $old ?? [];
           <label>
             <input type="checkbox"> Lembrar-me
           </label>
-          <a href="index.php?action=forgot_passaword">Esqueceu a senha?</a>
+          <a href="index.php?action=forgot_password">Esqueceu a senha?</a>
         </div>
 
         <button type="submit" class="btn-login">ENTRAR</button>
