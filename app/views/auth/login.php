@@ -1,3 +1,7 @@
+<?php
+$errorMessage = $errorMessage ?? null;
+$old = $old ?? [];
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -160,10 +164,14 @@
       border-color: #e7c48d;
     }
 
-    .footer-text {
-      margin-top: 20px;
-      font-size: 0.82rem;
-      color: rgba(255, 255, 255, 0.8);
+    .error-message {
+      margin-bottom: 18px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: rgba(180, 40, 40, 0.18);
+      border: 1px solid rgba(255, 120, 120, 0.35);
+      color: #ffd6d6;
+      font-size: 0.92rem;
       text-align: center;
     }
 
@@ -184,26 +192,44 @@
     <div class="login-box">
       <h2>Login do Usuário</h2>
 
-      <form action="index.php?action=login" method="post">
+      <?php if (!empty($errorMessage)): ?>
+        <div class="error-message">
+          <?= htmlspecialchars($errorMessage) ?>
+        </div>
+      <?php endif; ?>
+
+      <form action="index.php?action=authenticate" method="post">
         <div class="input-group">
           <label for="email">E-mail</label>
-          <input type="email" id="email" name="email" placeholder="Digite seu e-mail" required>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="Digite seu e-mail"
+            value="<?= htmlspecialchars($old['email'] ?? '') ?>"
+            required
+          >
         </div>
 
         <div class="input-group">
           <label for="senha">Senha</label>
-          <input type="password" id="senha" name="senha" placeholder="Digite sua senha" required>
+          <input
+            type="password"
+            id="senha"
+            name="senha"
+            placeholder="Digite sua senha"
+            required
+          >
         </div>
 
         <div class="options">
           <label>
             <input type="checkbox"> Lembrar-me
           </label>
-          <a href="#">Esqueceu a senha?</a>
+          <a href="index.php?action=forgot_passaword">Esqueceu a senha?</a>
         </div>
 
         <button type="submit" class="btn-login">ENTRAR</button>
-
         <a href="index.php?action=user_create" class="btn-register">CRIAR CONTA</a>
       </form>
     </div>
