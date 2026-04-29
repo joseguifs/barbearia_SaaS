@@ -27,7 +27,7 @@
       content: "";
       position: absolute;
       inset: 0;
-      background: url('assets/images/WhatsApp Image 2026-04-22 at 23.48.50 (1).jpeg') center center/cover no-repeat;
+      background: url('assets/images/backgroundLogin.jpeg') center center/cover no-repeat;
       transform: scale(1.08);
       filter: blur(4px) brightness(0.6);
     }
