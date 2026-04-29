@@ -132,4 +132,56 @@ class Scheduling
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function getNextByClient($idCliente)
+    {
+        $sql = "SELECT
+                    a.id_agendamento,
+                    a.data_hora,
+                    a.status,
+                    b.nome AS barbeiro_nome
+                FROM agendamento a
+                INNER JOIN barbeiro b
+                    ON b.id_barbeiro = a.id_barbeiro
+                WHERE a.id_cliente = :id_cliente
+                  AND a.data_hora >= NOW()
+                ORDER BY a.data_hora ASC
+                LIMIT 1";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':id_cliente', $idCliente, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $agendamento = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$agendamento) {
+            return null;
+        }
+
+        $servicos = $this->getServicesBySchedulingId($agendamento['id_agendamento']);
+        $nomesServicos = [];
+
+        foreach ($servicos as $servico) {
+            $nomesServicos[] = $servico['nome'];
+        }
+
+        $agendamento['servicos_texto'] = !empty($nomesServicos)
+            ? implode(' + ', $nomesServicos)
+            : 'Serviço não informado';
+
+        return $agendamento;
+    }
+
+    public function updateDateTime($idAgendamento, $dataHora)
+    {
+        $sql = "UPDATE agendamento
+                SET data_hora = :data_hora
+                WHERE id_agendamento = :id_agendamento";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':data_hora', $dataHora);
+        $stmt->bindValue(':id_agendamento', $idAgendamento, PDO::PARAM_INT);
+
+        return $stmt->execute();
+    }
 }
