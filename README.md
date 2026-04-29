@@ -21,7 +21,7 @@ Desenvolver uma plataforma que permita:
 
 ---
 
-## 🚀 Funcionalidades
+[Mais sobre o projeto](https://github.com/joseguifs/barbearia_SaaS/blob/Project-Descriptor/README.md)
 
 ### 👤 Cliente
 
