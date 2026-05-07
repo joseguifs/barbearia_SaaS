@@ -8,6 +8,8 @@
 
 **Sprint 2:** [*Planejamento Sprint 2*](Markdowns/Sprints/Sprint2.md)
 
+**Sprint 3:** [*Planejamento Sprint 3*](Markdowns/Sprints/Sprint3.md)
+
 ---
 
 ### Abaixo anexaremos arquivos completos com informações sobre como rodar o projeto.
