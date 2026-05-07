@@ -18,12 +18,10 @@ Desenvolver uma plataforma capaz de:
 - Realizar agendamentos de forma prática
 - Consultar horários disponíveis
 - Acompanhar histórico de atendimentos
-- Gerenciar seus próprios agendamentos
 
 ## 💈 Barbeiros
 - Organizar agendas de atendimento
 - Visualizar compromissos diários
-- Gerenciar horários disponíveis
 - Controlar atendimentos realizados
 
 ## 🛠️ Administradores
