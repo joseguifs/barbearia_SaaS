@@ -59,14 +59,11 @@ O sistema segue o padrão arquitetural **MVC (Model-View-Controller)**.
 
 ## Estrutura MVC
 
-### 📦 Model
-Responsável pelas regras de negócio, manipulação de dados e comunicação com o banco de dados.
+* **Model**: Responsável pelas regras de negócio, manipulação de dados e comunicação com o banco de dados.
 
-### 🖥️ View
-Responsável pela interface visual e interação com o usuário.
+* **View**: Responsável pela interface visual e interação com o usuário.
 
-### 🎮 Controller
-Responsável por intermediar as requisições entre Model e View.
+* **Controller**: Responsável por intermediar as requisições entre Model e View.
 
 ---
 
