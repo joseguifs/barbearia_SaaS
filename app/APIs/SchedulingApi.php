@@ -1,21 +1,21 @@
 <?php
 
-require_once __DIR__ . '/../models/Client.php';
+require_once __DIR__ . '/../models/Scheduling.php';
 
-class ApiAuth
+class SchedulingApi
+
 {
-    private $clientModel;
+    private $schedulingModel;
 
     public function __construct($pdo)
     {
-        $this->clientModel = new Client($pdo);
+        $this->schedulingModel = new Scheduling($pdo);
     }
 
     private function startSessionIfNeeded()
     {
-        
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
         }
     }
 
@@ -27,8 +27,63 @@ class ApiAuth
         exit;
     }
 
-    public function login()
+    private function requireAuth()
     {
+        if (empty($_SESSION['id_cliente'])) {
+            $this->json([
+                'success' => false,
+                'message' => 'Usuário não autenticado.'
+            ], 401);
+        }
+    }
+
+    public function index()
+    {
+        // TEMPORÁRIO: sem autenticação
+        $agendamentos = $this->schedulingModel->all();
+
+        $this->json([
+            'success' => true,
+            'data' => $agendamentos
+        ]);
+    }
+
+    public function show()
+    {
+        $id = (int)($_GET['id'] ?? 0);
+
+        if ($id <= 0) {
+            $this->json([
+                'success' => false,
+                'message' => 'ID inválido.'
+            ], 400);
+        }
+
+        $agendamento = $this->schedulingModel->find($id);
+
+        if (!$agendamento) {
+            $this->json([
+                'success' => false,
+                'message' => 'Agendamento não encontrado.'
+            ], 404);
+        }
+
+        $servicos = $this->schedulingModel->getServicesBySchedulingId($id);
+        $valorTotal = $this->schedulingModel->getTotalValueBySchedulingId($id);
+
+        $agendamento['servicos'] = $servicos;
+        $agendamento['valor_total'] = $valorTotal;
+
+        $this->json([
+            'success' => true,
+            'data' => $agendamento
+        ]);
+    }
+
+    public function store()
+    {
+        $this->requireAuth();
+
         $input = json_decode(file_get_contents('php://input'), true);
 
         if (!is_array($input)) {
@@ -38,91 +93,69 @@ class ApiAuth
             ], 400);
         }
 
-        $email = trim($input['email'] ?? '');
-        $senha = trim($input['senha'] ?? '');
+        $idCliente = $_SESSION['id_cliente'];
+        $idBarbeiro = (int)($input['barbeiro_id'] ?? 0);
+        $servicos = $input['servicos'] ?? [];
+        $data = trim($input['data_agendamento'] ?? '');
+        $hora = trim($input['hora_agendamento'] ?? '');
+        $descricao = trim($input['descricao'] ?? '');
 
-        if ($email === '' || $senha === '') {
+        if ($idBarbeiro <= 0 || empty($servicos) || $data === '' || $hora === '') {
             $this->json([
                 'success' => false,
-                'message' => 'Preencha email e senha.'
+                'message' => 'Preencha os campos obrigatórios.'
             ], 422);
         }
 
-        $cliente = $this->clientModel->findByEmail($email);
+        $dataHora = $data . ' ' . $hora . ':00';
 
-        if (!$cliente) {
+        $novoId = $this->schedulingModel->createWithServices(
+            $idCliente,
+            $idBarbeiro,
+            $dataHora,
+            $descricao,
+            $servicos
+        );
+
+        if (!$novoId) {
             $this->json([
                 'success' => false,
-                'message' => 'Email ou senha inválidos.'
-            ], 401);
+                'message' => 'Não foi possível criar o agendamento.'
+            ], 500);
         }
-
-        $senhaBanco = $cliente['senha'] ?? '';
-
-        if (!password_verify($senha, $senhaBanco)) {
-            $this->json([
-                'success' => false,
-                'message' => 'Email ou senha inválidos.'
-            ], 401);
-        }
-
-        session_regenerate_id(true);
-
-        $_SESSION['id_cliente'] = $cliente['id_cliente'];
-        $_SESSION['cliente_nome'] = $cliente['nome'];
-        $_SESSION['cliente_email'] = $cliente['email'];
 
         $this->json([
             'success' => true,
-            'message' => 'Login realizado com sucesso.',
-            'user' => [
-                'id_cliente' => $cliente['id_cliente'],
-                'nome' => $cliente['nome'],
-                'email' => $cliente['email']
-            ]
-        ]);
+            'message' => 'Agendamento criado com sucesso.',
+            'id' => $novoId
+        ], 201);
     }
 
-    public function me()
+    public function delete()
     {
-        if (empty($_SESSION['id_cliente'])) {
+        $this->requireAuth();
+
+        $id = (int)($_GET['id'] ?? 0);
+
+        if ($id <= 0) {
             $this->json([
-                'authenticated' => false
-            ]);
+                'success' => false,
+                'message' => 'ID inválido.'
+            ], 400);
         }
 
-        $this->json([
-            'authenticated' => true,
-            'user' => [
-                'id_cliente' => $_SESSION['id_cliente'],
-                'nome' => $_SESSION['cliente_nome'] ?? '',
-                'email' => $_SESSION['cliente_email'] ?? ''
-            ]
-        ]);
-    }
+        $ok = $this->schedulingModel->deleteByIdAndClient($id, $_SESSION['id_cliente']);
 
-    public function logout()
-    {
-        $_SESSION = [];
-
-        if (ini_get('session.use_cookies')) {
-            $params = session_get_cookie_params();
-            setcookie(
-                session_name(),
-                '',
-                time() - 42000,
-                $params['path'],
-                $params['domain'],
-                $params['secure'],
-                $params['httponly']
-            );
+        if (!$ok) {
+            $this->json([
+                'success' => false,
+                'message' => 'Não foi possível excluir o agendamento.'
+            ], 500);
         }
-
-        session_destroy();
 
         $this->json([
             'success' => true,
-            'message' => 'Logout realizado com sucesso.'
+            'message' => 'Agendamento excluído com sucesso.'
         ]);
     }
 }
