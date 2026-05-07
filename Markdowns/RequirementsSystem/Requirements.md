@@ -27,4 +27,3 @@
 * Arquitetura MVC
 * Compatibilidade com navegadores modernos
 
----
