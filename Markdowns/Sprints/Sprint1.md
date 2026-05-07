@@ -17,7 +17,7 @@ Essa funcionalidade visa permitir que os usuários criem suas contas para realiz
 
 ### 2. Permitir que os usuários solicitem agendamento com descrição
 **Descrição:**  
-Essa funcionalidade permite que os usuários realizem agendamentos de forma geral, podendo especificar detalhes como corte de cabelo, barba ou outro serviço. O usuário seleciona o horário, barbeiro e o tipo de serviço desejado.
+Essa funcionalidade visa permitir que os usuários realizem agendamentos de forma geral, podendo especificar detalhes como corte de cabelo, barba ou outro serviço. O usuário seleciona o horário, barbeiro e o tipo de serviço desejado.
 
 **Desenvolvida por:** José Guilherme Ferreira Sobrinho
 
@@ -25,7 +25,7 @@ Essa funcionalidade permite que os usuários realizem agendamentos de forma gera
 
 ### 3. Visualizar informações sobre o agendamento
 **Descrição:**  
-Essa funcionalidade permite que os usuários acompanhem o status de seus agendamentos. Após a criação, o agendamento é marcado como **pendente**, e posteriormente pode ser **aceito ou recusado** pelos barbeiros.
+Essa funcionalidade visa permite que os usuários acompanhem o status de seus agendamentos. Após a criação, o agendamento é marcado como **pendente**, e posteriormente pode ser **aceito ou recusado** pelos barbeiros.
 
 **Desenvolvida por:** Matheus Felipe
 
@@ -33,7 +33,7 @@ Essa funcionalidade permite que os usuários acompanhem o status de seus agendam
 
 ### 4. Página para listar e aceitar ou recusar agendamentos
 **Descrição:**  
-Essa funcionalidade disponibiliza um painel simples para os barbeiros gerenciarem os agendamentos, permitindo aceitar ou recusar solicitações desde as primeiras versões do produto.
+Essa funcionalidade visa permitir que disponibiliza - se um painel simples para os barbeiros gerenciarem os agendamentos, permitindo aceitar ou recusar solicitações desde as primeiras versões do produto.
 
 **Desenvolvida por:** José Carlos
 
