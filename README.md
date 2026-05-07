@@ -12,4 +12,7 @@
 
 ---
 
-### Abaixo anexaremos arquivos completos com informações sobre como rodar o projeto.
+## Aqui encontrarão todo os requisitos relacionados ao BarberTime: [*Requisitos do sistema*](Markdowns/RequirementsSystem/Requirements.md)
+
+---
+
