@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../models/Client.php';
 
-class ApiAuth
+class AuthApi
 {
     private $clientModel;
 
