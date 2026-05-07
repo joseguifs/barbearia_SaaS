@@ -71,7 +71,7 @@ O sistema segue o padrão arquitetural **MVC (Model-View-Controller)**.
 
 * **Backend:** PHP
 * **Frontend:** HTML, CSS, JavaScript
-* **Banco de Dados:** MySQL
+* **Banco de Dados:** MariaDB
 * **Versionamento:** Git + GitHub
 ---
 
