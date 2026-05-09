@@ -87,29 +87,5 @@ class UserController
             $this->create($data, $errors);
         }
     }
-
-    public function handleAPI($method, $id = null) {
-    header("Content-Type: application/json");
-    $data = json_decode(file_get_contents("php://input"), true);
-
-    switch ($method) {
-        case 'GET':
-            echo json_encode($id ? $this->userModel->find($id) : $this->userModel->all());
-            break;
-        case 'POST':
-            $senhaHash = password_hash($data['senha'], PASSWORD_DEFAULT);
-            $sucesso = $this->userModel->create($data['nome'], $data['telefone'], $data['email'], $senhaHash);
-            echo json_encode(["success" => $sucesso]);
-            break;
-        case 'PUT':
-            $sucesso = $this->userModel->update($id, $data['nome'], $data['telefone'], $data['email']);
-            echo json_encode(["success" => $sucesso]);
-            break;
-        case 'DELETE':
-            $sucesso = $this->userModel->delete($id);
-            echo json_encode(["success" => $sucesso]);
-            break;
-        }
-    }
 }
 
