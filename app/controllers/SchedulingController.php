@@ -32,28 +32,33 @@ class SchedulingController
 
     public function store()
     {
-        $idCliente = $_POST['cliente_id'] ?? null;
+        $idCliente = $_SESSION['id_cliente'] ?? null;
         $idBarbeiro = $_POST['barbeiro_id'] ?? null;
-        $servicos = $_POST['servicos'] ?? [];
+        $servicosSelecionados = $_POST['servicos'] ?? [];
         $data = $_POST['data_agendamento'] ?? null;
         $hora = $_POST['hora_agendamento'] ?? null;
         $descricao = trim($_POST['descricao'] ?? '');
 
-        if (empty($idCliente) || empty($idBarbeiro) || empty($servicos) || empty($data) || empty($hora)) {
-            echo "Preencha cliente, barbeiro, serviço(s), data e horário.";
+        if (empty($idCliente)) {
+            header('Location: index.php?action=login');
+            exit;
+        }
+
+        if (empty($idBarbeiro) || empty($servicosSelecionados) || empty($data) || empty($hora)) {
+            echo "Preencha barbeiro, serviço(s), data e horário.";
             return;
         }
 
         $idCliente = (int) $idCliente;
         $idBarbeiro = (int) $idBarbeiro;
-        $servicos = array_map('intval', $servicos);
+        $servicosSelecionados = array_map('intval', $servicosSelecionados);
 
         if (!$this->clientModel->find($idCliente)) {
-            echo "Cliente inválido.";
+            echo "Cliente da sessão inválido.";
             return;
         }
 
-        if (!$this->serviceModel->barberHasAllServices($idBarbeiro, $servicos)) {
+        if (!$this->serviceModel->barberHasAllServices($idBarbeiro, $servicosSelecionados)) {
             echo "O barbeiro selecionado não atende todos os serviços escolhidos.";
             return;
         }
@@ -69,7 +74,7 @@ class SchedulingController
         ];
 
         try {
-            $this->schedulingModel->create($dados, $servicos);
+            $this->schedulingModel->create($dados, $servicosSelecionados);
 
             header('Location: index.php?action=scheduling_create&success=1');
             exit;
@@ -81,6 +86,7 @@ class SchedulingController
             }
 
             echo "Erro ao salvar agendamento: " . $e->getMessage();
+
         } catch (Exception $e) {
             echo "Erro ao salvar agendamento: " . $e->getMessage();
         }
@@ -88,24 +94,31 @@ class SchedulingController
 
     public function get()
     {
-        $idAgendamento = $_GET['id'] ?? null;
-
-        if (!$idAgendamento) {
-            echo "Agendamento não informado.";
-            return;
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
         }
 
-        $agendamento = $this->schedulingModel->find($idAgendamento);
-
-        if (!$agendamento) {
-            echo "Agendamento não encontrado.";
-            return;
+        if (empty($_SESSION['id_cliente'])) {
+            header('Location: index.php?action=login');
+        exit;
         }
 
-        $servicos = $this->schedulingModel->getServicesBySchedulingId($idAgendamento);
-        $valorTotal = $this->schedulingModel->getTotalValueBySchedulingId($idAgendamento);
+            require __DIR__ . '/../views/scheduling/get.php';
+        }
 
-        require_once __DIR__ . '/../views/scheduling/get.php';
+
+        public function myAppointments()
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if (empty($_SESSION['id_cliente'])) {
+            header('Location: index.php?action=login');
+            exit;
+        }
+
+        require __DIR__ . '/../views/scheduling/list.php';
     }
 
     public function edit()
