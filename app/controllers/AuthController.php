@@ -17,7 +17,10 @@ class AuthController
         $this->clientModel = new Client($pdo);
         $this->schedulingModel = new Scheduling($pdo);
         $this->userModel = new User($pdo);
+    }
 
+    private function startSessionIfNeeded()
+    {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
@@ -25,18 +28,15 @@ class AuthController
 
     private function renderLogin(?string $errorMessage = null, array $old = [])
     {
-        $errors = [];
-        $data = $old;
-
-        if ($errorMessage !== null) {
-            $errors['geral'] = $errorMessage;
-        }
-
         require __DIR__ . '/../views/auth/login.php';
     }
 
     public function login()
     {
+        if (!empty($_COOKIE[session_name()])) {
+            $this->startSessionIfNeeded();
+        }
+
         if (!empty($_SESSION['id_cliente'])) {
             header('Location: index.php?action=home');
             exit;
@@ -47,37 +47,7 @@ class AuthController
 
     public function authenticate()
     {
-        $email = trim($_POST['email'] ?? '');
-        $senha = trim($_POST['senha'] ?? '');
-
-        $old = [
-            'email' => $email
-        ];
-
-        if ($email === '' || $senha === '') {
-            $this->renderLogin('Preencha email e senha.', $old);
-            return;
-        }
-
-        $cliente = $this->clientModel->findByEmail($email);
-
-        if (!$cliente) {
-            $this->renderLogin('Email ou senha inválidos.', $old);
-            return;
-        }
-
-        $senhaBanco = $cliente['senha'] ?? '';
-
-        if (!password_verify($senha, $senhaBanco)) {
-            $this->renderLogin('Email ou senha inválidos.', $old);
-            return;
-        }
-
-        $_SESSION['id_cliente'] = $cliente['id_cliente'];
-        $_SESSION['cliente_nome'] = $cliente['nome'];
-        $_SESSION['cliente_email'] = $cliente['email'];
-
-        header('Location: index.php?action=home');
+        header('Location: index.php?action=login');
         exit;
     }
 
@@ -179,34 +149,37 @@ class AuthController
         $this->resetPasswordForm($errors);
     }
 
-    public function home()
+        public function home()
     {
+        $this->startSessionIfNeeded();
+
         if (empty($_SESSION['id_cliente'])) {
             header('Location: index.php?action=login');
             exit;
         }
 
         $clienteNome = $_SESSION['cliente_nome'] ?? 'Usuário';
-        $proximoAgendamento = $this->schedulingModel->getNextByClient($_SESSION['id_cliente']);
 
         require __DIR__ . '/../views/home/index.php';
     }
 
     public function logout()
     {
+        $this->startSessionIfNeeded();
+
         $_SESSION = [];
 
-        if (ini_get('session.use_cookies')) {
+        if (ini_get("session.use_cookies")) {
             $params = session_get_cookie_params();
 
             setcookie(
                 session_name(),
                 '',
                 time() - 42000,
-                $params['path'],
-                $params['domain'],
-                $params['secure'],
-                $params['httponly']
+                $params["path"],
+                $params["domain"],
+                $params["secure"],
+                $params["httponly"]
             );
         }
 
