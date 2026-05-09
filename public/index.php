@@ -6,6 +6,7 @@ require_once __DIR__ . '/../app/controllers/AuthController.php';
 require_once __DIR__ . '/../app/controllers/UserController.php';
 require_once __DIR__ . '/../app/controllers/SchedulingReviewController.php';
 require_once __DIR__ . '/../app/controllers/SchedulingController.php';
+require_once __DIR__ . '/../app/APIs/BarberApi.php';
 
 $action = $_GET['action'] ?? 'login';
 
@@ -86,6 +87,45 @@ switch ($action) {
 
     case 'review_reject':
         $reviewController->reject();
+        break;
+
+    case 'api_barber_index':
+        $api = new BarberApi();
+        $api->index();
+        break;
+
+    case 'api_barber_show':
+        $api = new BarberApi();
+        $api->show();
+        break;
+
+    case 'api_barber_services':
+        $api = new BarberApi();
+        $api->getServicesByBarber();
+        break;
+
+    case 'api_barber_store':
+        $api = new BarberApi();
+        $api->store();
+        break;
+
+    case 'api_barber_update':
+        $api = new BarberApi();
+        $api->update();
+        break;
+
+    case 'admin_barbers':
+        require_once __DIR__ . '/../app/views/admin/barbers.php';
+        break;
+        
+    case 'api_barber_update_services':
+        $api = new BarberApi();
+        $api->updateServices();
+        break;
+
+    case 'api_barber_delete':
+        $api = new BarberApi();
+        $api->delete();
         break;
 
     default:
