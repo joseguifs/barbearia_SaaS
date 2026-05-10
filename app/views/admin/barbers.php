@@ -62,7 +62,8 @@ if (!function_exists('e')) {
                     rgba(197, 157, 95, .08),
                     transparent 20%,
                     transparent 80%,
-                    rgba(197, 157, 95, .05));
+                    rgba(197, 157, 95, .05)
+                );
             pointer-events: none;
         }
 
@@ -123,75 +124,59 @@ if (!function_exists('e')) {
         .hero {
             position: relative;
             min-height: 520px;
-
             display: flex;
             align-items: center;
             justify-content: center;
-
             overflow: hidden;
-
             padding: 120px 20px 155px;
-        }
-
-        .hero-admin {
-            margin-bottom: 0;
         }
 
         .hero::before {
             content: "";
             position: absolute;
             inset: 0;
-
             background:
-                linear-gradient(rgba(0, 0, 0, .48),
-                    rgba(0, 0, 0, .82)),
-                url('/BARBEARIA_SAAS/public/assets/images/backgroundLogin.jpeg') center center/cover no-repeat;
-
+                linear-gradient(
+                    rgba(0, 0, 0, .48),
+                    rgba(0, 0, 0, .82)
+                ),
+                url('/BARBEARIA_SAAS/public/assets/images/backgroundLogin.jpeg')
+                center center/cover no-repeat;
             transform: scale(1.06);
-
-            filter:
-                blur(3px) brightness(.55);
+            filter: blur(3px) brightness(.55);
         }
 
         .hero-overlay {
             position: absolute;
             inset: 0;
-
             background:
-                radial-gradient(circle at top right,
+                radial-gradient(
+                    circle at top right,
                     rgba(197, 157, 95, .14),
-                    transparent 35%);
+                    transparent 35%
+                );
         }
 
         .hero-content {
             position: relative;
             z-index: 2;
-
             text-align: center;
-
             max-width: 900px;
-
             padding: 30px 20px;
         }
 
         .hero-content h1 {
             font-size: 3.6rem;
             line-height: 1.1;
-
             color: #fff;
-
             margin: 14px 0 20px;
-
             font-weight: 800;
         }
 
         .hero-content p {
             max-width: 820px;
-
             margin: 0 auto;
-
             color: rgba(255, 255, 255, .82);
-
             font-size: 1.05rem;
             line-height: 1.8;
         }
@@ -206,19 +191,14 @@ if (!function_exists('e')) {
 
         .admin-page {
             max-width: 1240px;
-
             margin: 0 auto;
-
             padding: 46px 22px 80px;
         }
-
 
         .manager-layout {
             position: relative;
             z-index: 10;
-
             margin-top: -60px;
-
             display: grid;
             grid-template-columns: 380px 1fr;
             gap: 24px;
@@ -257,10 +237,7 @@ if (!function_exists('e')) {
             height: 4px;
             margin-top: 12px;
             border-radius: 999px;
-            background:
-                linear-gradient(90deg,
-                    #c59d5f,
-                    transparent);
+            background: linear-gradient(90deg, #c59d5f, transparent);
         }
 
         .form-group {
@@ -302,10 +279,20 @@ if (!function_exists('e')) {
             line-height: 1.5;
         }
 
-        .form-actions {
+        .form-actions,
+        .toolbar,
+        .card-actions,
+        .modal-actions {
             display: flex;
             gap: 12px;
+        }
+
+        .form-actions {
             margin-top: 24px;
+        }
+
+        .toolbar {
+            margin-bottom: 24px;
         }
 
         .btn-primary,
@@ -323,10 +310,7 @@ if (!function_exists('e')) {
         .btn-primary {
             flex: 1;
             min-height: 52px;
-            background:
-                linear-gradient(135deg,
-                    #c59d5f,
-                    #8b5e34);
+            background: linear-gradient(135deg, #c59d5f, #8b5e34);
             color: #fff;
         }
 
@@ -344,12 +328,6 @@ if (!function_exists('e')) {
         .btn-danger:hover,
         .btn-danger-soft:hover {
             transform: translateY(-2px);
-        }
-
-        .toolbar {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
         }
 
         .toolbar input {
@@ -378,10 +356,7 @@ if (!function_exists('e')) {
             padding: 22px;
             position: relative;
             overflow: hidden;
-            transition:
-                transform .3s ease,
-                border-color .3s ease,
-                box-shadow .3s ease;
+            transition: transform .3s ease, border-color .3s ease, box-shadow .3s ease;
         }
 
         .barber-card:hover {
@@ -399,10 +374,7 @@ if (!function_exists('e')) {
             display: flex;
             align-items: center;
             justify-content: center;
-            background:
-                linear-gradient(135deg,
-                    #c59d5f,
-                    #8b5e34);
+            background: linear-gradient(135deg, #c59d5f, #8b5e34);
             color: #fff;
             font-size: 1.4rem;
             font-weight: 900;
@@ -416,6 +388,16 @@ if (!function_exists('e')) {
             margin-bottom: 8px;
             position: relative;
             z-index: 2;
+        }
+
+        .barber-email {
+            color: rgba(231, 196, 141, .82);
+            font-size: .84rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 2;
+            word-break: break-word;
         }
 
         .barber-description {
@@ -444,13 +426,6 @@ if (!function_exists('e')) {
             color: #e7c48d;
             font-size: .76rem;
             font-weight: 700;
-        }
-
-        .card-actions {
-            display: flex;
-            gap: 10px;
-            position: relative;
-            z-index: 2;
         }
 
         .btn-small {
@@ -552,8 +527,6 @@ if (!function_exists('e')) {
         }
 
         .modal-actions {
-            display: flex;
-            gap: 12px;
             margin-top: 24px;
         }
 
@@ -591,10 +564,7 @@ if (!function_exists('e')) {
         .footer {
             padding: 70px 20px 50px;
             border-top: 1px solid rgba(255, 255, 255, .06);
-            background:
-                linear-gradient(to bottom,
-                    rgba(15, 15, 15, .92),
-                    rgba(10, 10, 10, 1));
+            background: linear-gradient(to bottom, rgba(15, 15, 15, .92), rgba(10, 10, 10, 1));
         }
 
         .footer-container {
@@ -621,9 +591,7 @@ if (!function_exists('e')) {
         .reveal-item {
             opacity: 0;
             transform: translateY(26px);
-            transition:
-                opacity .7s ease,
-                transform .7s ease;
+            transition: opacity .7s ease, transform .7s ease;
         }
 
         .reveal-item.is-visible {
@@ -736,8 +704,8 @@ if (!function_exists('e')) {
 
             <p>
                 Cadastre, edite, remova e visualize os barbeiros disponíveis no sistema.
-                Os cards abaixo apresentam cada profissional com uma breve descrição
-                e seus serviços relacionados.
+                Os cards abaixo apresentam cada profissional com uma breve descrição,
+                e-mail de acesso futuro e seus serviços relacionados.
             </p>
         </div>
     </section>
@@ -752,6 +720,14 @@ if (!function_exists('e')) {
                     <div class="form-group">
                         <label for="barber-name">Nome do barbeiro</label>
                         <input type="text" id="barber-name" placeholder="Ex: João Silva" autocomplete="off">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="barber-email">E-mail do barbeiro</label>
+                        <input type="email" id="barber-email" placeholder="Ex: barbeiro@email.com" autocomplete="off">
+                        <small class="input-hint">
+                            Esse e-mail será usado futuramente para o login do barbeiro.
+                        </small>
                     </div>
 
                     <div class="form-group">
@@ -779,7 +755,7 @@ if (!function_exists('e')) {
                 <h2 class="panel-title">Barbeiros cadastrados</h2>
 
                 <div class="toolbar">
-                    <input type="text" id="search-input" placeholder="Buscar barbeiro pelo nome...">
+                    <input type="text" id="search-input" placeholder="Buscar barbeiro pelo nome ou e-mail...">
 
                     <button type="button" class="btn-secondary" id="reload-button">
                         Atualizar
@@ -805,7 +781,6 @@ if (!function_exists('e')) {
         </div>
     </footer>
 
-    <!-- MODAL EDITAR -->
     <div id="edit-modal-backdrop" class="modal-backdrop" aria-hidden="true">
         <div class="modal-box" role="dialog" aria-modal="true">
             <span class="section-tag">Editar barbeiro</span>
@@ -817,6 +792,14 @@ if (!function_exists('e')) {
                 <div class="form-group">
                     <label for="edit-barber-name">Nome do barbeiro</label>
                     <input type="text" id="edit-barber-name" placeholder="Ex: João Silva" autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-barber-email">E-mail do barbeiro</label>
+                    <input type="email" id="edit-barber-email" placeholder="Ex: barbeiro@email.com" autocomplete="off">
+                    <small class="input-hint">
+                        Esse e-mail será usado futuramente para o login do barbeiro.
+                    </small>
                 </div>
 
                 <div class="form-group">
@@ -840,7 +823,6 @@ if (!function_exists('e')) {
         </div>
     </div>
 
-    <!-- MODAL EXCLUIR -->
     <div id="delete-modal-backdrop" class="modal-backdrop" aria-hidden="true">
         <div class="modal-box" role="dialog" aria-modal="true">
             <span class="section-tag">Excluir barbeiro</span>
@@ -875,6 +857,7 @@ if (!function_exists('e')) {
 
         const barberForm = document.getElementById('barber-form');
         const barberNameInput = document.getElementById('barber-name');
+        const barberEmailInput = document.getElementById('barber-email');
         const barberServicesInput = document.getElementById('barber-services');
 
         const submitButton = document.getElementById('submit-button');
@@ -890,6 +873,7 @@ if (!function_exists('e')) {
         const editBarberForm = document.getElementById('edit-barber-form');
         const editBarberIdInput = document.getElementById('edit-barber-id');
         const editBarberNameInput = document.getElementById('edit-barber-name');
+        const editBarberEmailInput = document.getElementById('edit-barber-email');
         const editBarberServicesInput = document.getElementById('edit-barber-services');
         const cancelEditButton = document.getElementById('cancel-edit-button');
         const saveEditButton = document.getElementById('save-edit-button');
@@ -1008,6 +992,10 @@ if (!function_exists('e')) {
 
                     <h3>${escapeHtml(barber.nome)}</h3>
 
+                    <p class="barber-email">
+                        ${barber.email ? escapeHtml(barber.email) : 'E-mail não cadastrado'}
+                    </p>
+
                     <p class="barber-description">
                         ${escapeHtml(buildDescription(barber))}
                     </p>
@@ -1040,7 +1028,10 @@ if (!function_exists('e')) {
             }
 
             const filtered = barbers.filter(barber => {
-                return String(barber.nome || '').toLowerCase().includes(term);
+                const nome = String(barber.nome || '').toLowerCase();
+                const email = String(barber.email || '').toLowerCase();
+
+                return nome.includes(term) || email.includes(term);
             });
 
             renderBarbers(filtered);
@@ -1080,6 +1071,7 @@ if (!function_exists('e')) {
             event.preventDefault();
 
             const nome = barberNameInput.value.trim();
+            const email = barberEmailInput.value.trim();
             const servicos = parseServiceIds(barberServicesInput.value);
 
             if (!nome) {
@@ -1100,6 +1092,7 @@ if (!function_exists('e')) {
                     },
                     body: JSON.stringify({
                         nome,
+                        email,
                         servicos
                     })
                 });
@@ -1135,6 +1128,7 @@ if (!function_exists('e')) {
 
             editBarberIdInput.value = barber.id_barbeiro;
             editBarberNameInput.value = barber.nome || '';
+            editBarberEmailInput.value = barber.email || '';
             editBarberServicesInput.value = getServiceIdsFromBarber(barber);
 
             editModalBackdrop.classList.add('show');
@@ -1151,6 +1145,7 @@ if (!function_exists('e')) {
 
             editBarberIdInput.value = '';
             editBarberNameInput.value = '';
+            editBarberEmailInput.value = '';
             editBarberServicesInput.value = '';
         }
 
@@ -1159,6 +1154,7 @@ if (!function_exists('e')) {
 
             const id = editBarberIdInput.value;
             const nome = editBarberNameInput.value.trim();
+            const email = editBarberEmailInput.value.trim();
             const servicos = parseServiceIds(editBarberServicesInput.value);
 
             if (!id) {
@@ -1184,6 +1180,7 @@ if (!function_exists('e')) {
                     },
                     body: JSON.stringify({
                         nome,
+                        email,
                         servicos
                     })
                 });
@@ -1272,6 +1269,7 @@ if (!function_exists('e')) {
 
         function clearCreateForm() {
             barberNameInput.value = '';
+            barberEmailInput.value = '';
             barberServicesInput.value = '';
         }
 
@@ -1299,6 +1297,7 @@ if (!function_exists('e')) {
         editBarberForm.addEventListener('submit', saveEditBarber);
 
         clearButton.addEventListener('click', clearCreateForm);
+
         reloadButton.addEventListener('click', function () {
             loadBarbers();
             showToast('Lista atualizada.');
