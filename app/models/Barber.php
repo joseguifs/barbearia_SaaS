@@ -13,7 +13,8 @@ class Barber
     {
         $sql = "SELECT 
                     id_barbeiro,
-                    nome
+                    nome,
+                    email
                 FROM barbeiro
                 ORDER BY nome ASC";
 
@@ -42,7 +43,8 @@ class Barber
     {
         $sql = "SELECT 
                     id_barbeiro,
-                    nome
+                    nome,
+                    email
                 FROM barbeiro
                 WHERE id_barbeiro = :id
                 LIMIT 1";
@@ -95,16 +97,19 @@ class Barber
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function create($nome, $servicos = [])
+    public function create($nome, $email = null, $servicos = [])
     {
         try {
             $this->pdo->beginTransaction();
 
-            $sql = "INSERT INTO barbeiro (nome)
-                    VALUES (:nome)";
+            $email = $this->normalizeEmail($email);
+
+            $sql = "INSERT INTO barbeiro (nome, email)
+                    VALUES (:nome, :email)";
 
             $stmt = $this->pdo->prepare($sql);
             $stmt->bindValue(':nome', $nome);
+            $stmt->bindValue(':email', $email);
             $stmt->execute();
 
             $idBarbeiro = $this->pdo->lastInsertId();
@@ -118,12 +123,15 @@ class Barber
             return $idBarbeiro;
 
         } catch (Exception $e) {
-            $this->pdo->rollBack();
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+
             throw $e;
         }
     }
 
-    public function update($id, $nome = null, $servicos = null)
+    public function update($id, $nome = null, $email = null, $servicos = null)
     {
         $barber = $this->find($id);
 
@@ -134,13 +142,30 @@ class Barber
         try {
             $this->pdo->beginTransaction();
 
+            $fields = [];
+            $params = [];
+
             if ($nome !== null) {
+                $fields[] = "nome = :nome";
+                $params[':nome'] = $nome;
+            }
+
+            if ($email !== null) {
+                $fields[] = "email = :email";
+                $params[':email'] = $this->normalizeEmail($email);
+            }
+
+            if (!empty($fields)) {
                 $sql = "UPDATE barbeiro
-                        SET nome = :nome
+                        SET " . implode(', ', $fields) . "
                         WHERE id_barbeiro = :id_barbeiro";
 
                 $stmt = $this->pdo->prepare($sql);
-                $stmt->bindValue(':nome', $nome);
+
+                foreach ($params as $key => $value) {
+                    $stmt->bindValue($key, $value);
+                }
+
                 $stmt->bindValue(':id_barbeiro', $id, PDO::PARAM_INT);
                 $stmt->execute();
             }
@@ -154,7 +179,10 @@ class Barber
             return true;
 
         } catch (Exception $e) {
-            $this->pdo->rollBack();
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+
             throw $e;
         }
     }
@@ -198,14 +226,14 @@ class Barber
             }
 
             $sqlDeleteServices = "DELETE FROM barbeiro_servico
-                              WHERE id_barbeiro = :id_barbeiro";
+                                  WHERE id_barbeiro = :id_barbeiro";
 
             $stmtServices = $this->pdo->prepare($sqlDeleteServices);
             $stmtServices->bindValue(':id_barbeiro', $id, PDO::PARAM_INT);
             $stmtServices->execute();
 
             $sqlDeleteBarber = "DELETE FROM barbeiro
-                            WHERE id_barbeiro = :id_barbeiro";
+                                WHERE id_barbeiro = :id_barbeiro";
 
             $stmtBarber = $this->pdo->prepare($sqlDeleteBarber);
             $stmtBarber->bindValue(':id_barbeiro', $id, PDO::PARAM_INT);
@@ -233,8 +261,8 @@ class Barber
     private function countSchedulingsByBarber($idBarbeiro)
     {
         $sql = "SELECT COUNT(*) AS total
-            FROM agendamento
-            WHERE id_barbeiro = :id_barbeiro";
+                FROM agendamento
+                WHERE id_barbeiro = :id_barbeiro";
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue(':id_barbeiro', $idBarbeiro, PDO::PARAM_INT);
@@ -247,12 +275,12 @@ class Barber
 
     private function findNextAvailableBarber($idBarbeiroAtual)
     {
-        $sqlNext = "SELECT id_barbeiro, nome
-                FROM barbeiro
-                WHERE id_barbeiro <> :id_barbeiro
-                AND id_barbeiro > :id_barbeiro
-                ORDER BY id_barbeiro ASC
-                LIMIT 1";
+        $sqlNext = "SELECT id_barbeiro, nome, email
+                    FROM barbeiro
+                    WHERE id_barbeiro <> :id_barbeiro
+                    AND id_barbeiro > :id_barbeiro
+                    ORDER BY id_barbeiro ASC
+                    LIMIT 1";
 
         $stmtNext = $this->pdo->prepare($sqlNext);
         $stmtNext->bindValue(':id_barbeiro', $idBarbeiroAtual, PDO::PARAM_INT);
@@ -264,11 +292,11 @@ class Barber
             return $nextBarber;
         }
 
-        $sqlFirst = "SELECT id_barbeiro, nome
-                 FROM barbeiro
-                 WHERE id_barbeiro <> :id_barbeiro
-                 ORDER BY id_barbeiro ASC
-                 LIMIT 1";
+        $sqlFirst = "SELECT id_barbeiro, nome, email
+                     FROM barbeiro
+                     WHERE id_barbeiro <> :id_barbeiro
+                     ORDER BY id_barbeiro ASC
+                     LIMIT 1";
 
         $stmtFirst = $this->pdo->prepare($sqlFirst);
         $stmtFirst->bindValue(':id_barbeiro', $idBarbeiroAtual, PDO::PARAM_INT);
@@ -280,10 +308,10 @@ class Barber
     private function reassignSchedulingsToNextBarber($idBarbeiroAtual, $idNovoBarbeiro)
     {
         $sql = "UPDATE agendamento
-            SET 
-                id_barbeiro = :id_novo_barbeiro,
-                status = 'pendente'
-            WHERE id_barbeiro = :id_barbeiro_atual";
+                SET 
+                    id_barbeiro = :id_novo_barbeiro,
+                    status = 'pendente'
+                WHERE id_barbeiro = :id_barbeiro_atual";
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue(':id_novo_barbeiro', $idNovoBarbeiro, PDO::PARAM_INT);
@@ -295,7 +323,7 @@ class Barber
 
     public function syncServices($idBarbeiro, $servicos)
     {
-        $servicos = $this->normalizeServices($servicos);
+        $servicos = $this->validateServicesExist($servicos);
 
         $sqlDelete = "DELETE FROM barbeiro_servico
                       WHERE id_barbeiro = :id_barbeiro";
@@ -322,6 +350,44 @@ class Barber
         return true;
     }
 
+    private function validateServicesExist($servicos)
+    {
+        $servicos = $this->normalizeServices($servicos);
+
+        if (empty($servicos)) {
+            return [];
+        }
+
+        $placeholders = implode(',', array_fill(0, count($servicos), '?'));
+
+        $sql = "SELECT id_servico
+                FROM servico
+                WHERE id_servico IN ($placeholders)";
+
+        $stmt = $this->pdo->prepare($sql);
+
+        foreach ($servicos as $index => $idServico) {
+            $stmt->bindValue($index + 1, $idServico, PDO::PARAM_INT);
+        }
+
+        $stmt->execute();
+
+        $servicosExistentes = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        $servicosExistentes = array_map('intval', $servicosExistentes);
+
+        $servicosInexistentes = array_diff($servicos, $servicosExistentes);
+
+        if (!empty($servicosInexistentes)) {
+            $ids = implode(', ', $servicosInexistentes);
+
+            throw new InvalidArgumentException(
+                "Os seguintes serviços não existem no banco: {$ids}."
+            );
+        }
+
+        return $servicos;
+    }
+
     private function normalizeServices($servicos)
     {
         if (!is_array($servicos)) {
@@ -335,5 +401,22 @@ class Barber
         $servicos = array_map('intval', $servicos);
 
         return array_values(array_unique($servicos));
+    }
+
+    private function normalizeEmail($email)
+    {
+        $email = trim((string) ($email ?? ''));
+
+        if ($email === '') {
+            return null;
+        }
+
+        $email = strtolower($email);
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new InvalidArgumentException('O e-mail do barbeiro é inválido.');
+        }
+
+        return $email;
     }
 }
