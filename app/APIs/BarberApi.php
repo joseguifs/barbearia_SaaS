@@ -1,6 +1,5 @@
 <?php
 
-require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../models/Barber.php';
 
 class BarberApi
@@ -123,6 +122,7 @@ class BarberApi
             $input = $this->getJsonInput();
 
             $nome = trim($input['nome'] ?? '');
+            $email = array_key_exists('email', $input) ? trim($input['email']) : null;
             $servicos = $input['servicos'] ?? [];
 
             if (empty($nome)) {
@@ -135,13 +135,20 @@ class BarberApi
 
             $barberModel = new Barber($this->pdo);
 
-            $idBarbeiro = $barberModel->create($nome, $servicos);
+            $idBarbeiro = $barberModel->create($nome, $email, $servicos);
 
             $barber = $barberModel->findWithServices($idBarbeiro);
 
             $this->response(true, 'Barbeiro cadastrado com sucesso.', $barber, 201);
 
+        } catch (InvalidArgumentException $e) {
+            $this->response(false, $e->getMessage(), null, 400);
+
         } catch (PDOException $e) {
+            if ($e->getCode() === '23000') {
+                $this->response(false, 'Este e-mail já está cadastrado para outro barbeiro.', null, 400);
+            }
+
             $this->response(false, 'Erro no banco de dados ao cadastrar barbeiro.', null, 500);
 
         } catch (Exception $e) {
@@ -157,6 +164,7 @@ class BarberApi
             $id = $this->getIdFromRequest($input);
 
             $nome = null;
+            $email = null;
             $servicos = null;
 
             if (array_key_exists('nome', $input)) {
@@ -167,6 +175,10 @@ class BarberApi
                 }
             }
 
+            if (array_key_exists('email', $input)) {
+                $email = trim($input['email']);
+            }
+
             if (array_key_exists('servicos', $input)) {
                 if (!is_array($input['servicos'])) {
                     $this->response(false, 'O campo servicos deve ser uma lista de IDs.', null, 400);
@@ -175,13 +187,13 @@ class BarberApi
                 $servicos = $input['servicos'];
             }
 
-            if ($nome === null && $servicos === null) {
+            if ($nome === null && $email === null && $servicos === null) {
                 $this->response(false, 'Informe pelo menos um campo para atualizar.', null, 400);
             }
 
             $barberModel = new Barber($this->pdo);
 
-            $updated = $barberModel->update($id, $nome, $servicos);
+            $updated = $barberModel->update($id, $nome, $email, $servicos);
 
             if (!$updated) {
                 $this->response(false, 'Barbeiro não encontrado.', null, 404);
@@ -191,7 +203,14 @@ class BarberApi
 
             $this->response(true, 'Barbeiro atualizado com sucesso.', $barber);
 
+        } catch (InvalidArgumentException $e) {
+            $this->response(false, $e->getMessage(), null, 400);
+
         } catch (PDOException $e) {
+            if ($e->getCode() === '23000') {
+                $this->response(false, 'Este e-mail já está cadastrado para outro barbeiro.', null, 400);
+            }
+
             $this->response(false, 'Erro no banco de dados ao atualizar barbeiro.', null, 500);
 
         } catch (Exception $e) {
@@ -224,6 +243,9 @@ class BarberApi
             $barberUpdated = $barberModel->findWithServices($id);
 
             $this->response(true, 'Serviços do barbeiro atualizados com sucesso.', $barberUpdated);
+
+        } catch (InvalidArgumentException $e) {
+            $this->response(false, $e->getMessage(), null, 400);
 
         } catch (PDOException $e) {
             $this->response(false, 'Erro no banco de dados ao atualizar serviços do barbeiro.', null, 500);
