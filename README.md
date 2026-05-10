@@ -10,12 +10,52 @@ Este repositório contém toda a documentação relacionada ao desenvolvimento, 
 
 # 📑 Índice
 
+- [🎯 Objetivo](#-objetivo)
+- [🚀 Benefícios da Plataforma](#-benefícios-da-plataforma)
 - [📅 Planejamento das Sprints](#-planejamento-das-sprints)
 - [📋 Requisitos do Sistema](#-requisitos-do-sistema)
 - [🏗️ Entidades e Responsabilidades](#️-entidades-e-responsabilidades-do-sistema)
 - [🏛️ Arquitetura](#️-arquitetura)
 - [💻 Tecnologias Utilizadas](#-tecnologias-utilizadas)
 - [🧠 Metodologia](#-metodologia)
+
+---
+
+# 🎯 Objetivo
+
+Desenvolver uma plataforma capaz de atender clientes, barbeiros e administradores, oferecendo recursos para organização, controle e gerenciamento de agendamentos em barbearias.
+
+## 👤 Clientes
+
+- Realizar agendamentos de forma prática
+- Consultar horários disponíveis
+- Acompanhar histórico de atendimentos
+
+## 💈 Barbeiros
+
+- Organizar agendas de atendimento
+- Visualizar compromissos diários
+- Controlar atendimentos realizados
+
+## 🛠️ Administradores
+
+- Gerenciar barbeiros
+- Cadastrar serviços
+- Definir preços e duração dos serviços
+- Controlar agendamentos do sistema
+
+---
+
+# 🚀 Benefícios da Plataforma
+
+O BarberTime busca substituir processos manuais por uma solução digital eficiente, oferecendo:
+
+- 📅 Organização inteligente de horários
+- ⏱️ Redução de conflitos de agenda
+- 💈 Melhor gerenciamento operacional
+- 👥 Melhor experiência para clientes
+- 📊 Maior controle administrativo
+- 🌐 Facilidade de acesso pela web
 
 ---
 
@@ -73,6 +113,7 @@ O sistema segue o padrão arquitetural **MVC (Model-View-Controller)**.
 * **Frontend:** HTML, CSS, JavaScript
 * **Banco de Dados:** MariaDB
 * **Versionamento:** Git + GitHub
+
 ---
 
 # 🧠 Metodologia
