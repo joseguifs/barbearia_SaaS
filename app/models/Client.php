@@ -48,4 +48,49 @@ class Client
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    public function create($nome, $telefone, $email, $senha) 
+    {
+        $sql = "INSERT INTO cliente (nome, telefone, email, senha) VALUES (:nome, :telefone, :email, :senha)";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([
+            ':nome' => $nome,
+            ':telefone' => $telefone,
+            ':email' => $email,
+            ':senha' => $senha
+        ]);
+    }
+
+    public function update($id, $nome, $telefone, $email) 
+    {
+        $sql = "UPDATE cliente SET nome = :nome, telefone = :telefone, email = :email WHERE id_cliente = :id";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([
+            ':nome' => $nome,
+            ':telefone' => $telefone,
+            ':email' => $email,
+            ':id' => $id
+        ]);
+    }
+
+    public function delete($id) 
+    {
+        $sql = "DELETE FROM cliente WHERE id_cliente = :id";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([':id' => $id]);
+    }
+
+    public function updatePassword($idCliente, $senhaHash)
+    {
+        $sql = "UPDATE cliente
+        SET senha = :senha
+        WHERE id_cliente = :id_cliente";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':senha', $senhaHash);
+        $stmt->bindValue(':id_cliente', $idCliente, PDO::PARAM_INT);
+
+        return $stmt->execute();
+    }
 }
+
