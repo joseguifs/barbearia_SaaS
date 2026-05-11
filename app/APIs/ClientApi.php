@@ -91,3 +91,4 @@ if (isset($pdo)) {
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'Falha na conexão com o banco de dados.']);
 }
+
