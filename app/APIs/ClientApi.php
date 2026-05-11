@@ -81,14 +81,3 @@ class ClientApiController
     }
 }
 
-// 3. EXECUÇÃO IMEDIATA
-// A variável $pdo vem do arquivo database.php incluído no topo
-if (isset($pdo)) {
-    $api = new ClientApiController($pdo);
-    $api->handleRequest();
-} else {
-    header('Content-Type: application/json');
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Falha na conexão com o banco de dados.']);
-}
-
