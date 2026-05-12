@@ -1,6 +1,5 @@
 <?php
 $errors = $errors ?? [];
-$email = $_GET['email'] ?? '';
 
 if (!function_exists('e')) {
     function e($valor)
@@ -430,13 +429,6 @@ if (!function_exists('e')) {
                 class="auth-form"
                 id="reset-form"
             >
-
-                <input
-                    type="hidden"
-                    name="email"
-                    value="<?= e($email) ?>"
-                >
-
                 <div class="form-group">
 
                     <label for="senha">
