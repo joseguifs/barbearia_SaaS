@@ -13,29 +13,410 @@ if (!function_exists('e')) {
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Esqueci a Senha</title>
+    <title>Esqueci a Senha - BarberTime</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/BARBEARIA_SAAS/app/css/login.css">
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Arial, Helvetica, sans-serif;
+        }
+
+        body{
+            min-height:100vh;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            overflow:hidden;
+            background:#0f0f0f;
+            position:relative;
+            padding:20px;
+        }
+
+        body::before{
+            content:"";
+            position:absolute;
+            inset:0;
+
+            background:
+                linear-gradient(
+                    rgba(0,0,0,.25),
+                    rgba(0,0,0,.45)
+                ),
+                url('assets/images/backgroundLogin.jpeg')
+                center center/cover no-repeat;
+
+            transform:scale(1.08);
+
+            filter:
+                blur(4px)
+                brightness(0.42);
+        }
+
+        body::after{
+            content:"";
+            position:absolute;
+            inset:0;
+            background:linear-gradient(
+                rgba(0,0,0,0.25),
+                rgba(0,0,0,0.55)
+            );
+        }
+
+        .forgot-wrapper{
+            position:relative;
+            z-index:2;
+            width:100%;
+            max-width:520px;
+        }
+
+        .forgot-box{
+            position:relative;
+
+            background:rgba(18,18,18,0.42);
+
+            backdrop-filter:blur(18px);
+            -webkit-backdrop-filter:blur(18px);
+
+            border:1px solid rgba(255,255,255,0.08);
+
+            border-radius:28px;
+
+            padding:42px 34px;
+
+            box-shadow:
+                0 25px 70px rgba(0,0,0,0.55),
+                inset 0 1px 0 rgba(255,255,255,0.04);
+
+            overflow:hidden;
+
+            opacity:0;
+            transform:translateY(40px) scale(.97);
+
+            transition:
+                opacity .8s ease,
+                transform .8s ease;
+        }
+
+        .forgot-box.show{
+            opacity:1;
+            transform:translateY(0) scale(1);
+        }
+
+        .floating-glow{
+            position:absolute;
+            width:320px;
+            height:320px;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(197,157,95,.14),
+                    transparent 72%
+                );
+
+            border-radius:50%;
+
+            top:-140px;
+            right:-120px;
+
+            pointer-events:none;
+        }
+
+        .forgot-box h1{
+            font-size:2rem;
+            margin-bottom:14px;
+            font-weight:700;
+            color:#fff;
+        }
+
+        .forgot-description{
+            color:rgba(255,255,255,.72);
+            font-size:.96rem;
+            line-height:1.6;
+            margin-bottom:34px;
+        }
+
+        .form-group{
+            margin-bottom:24px;
+        }
+
+        .form-group label{
+            display:block;
+            margin-bottom:10px;
+
+            color:rgba(255,255,255,.92);
+            font-size:.95rem;
+        }
+
+        .input-wrap{
+            position:relative;
+            width:100%;
+
+            border-radius:14px;
+
+            border:1px solid rgba(255,255,255,.10);
+
+            background:rgba(255,255,255,.035);
+
+            transition:
+                border-color .25s ease,
+                box-shadow .25s ease,
+                background .25s ease;
+        }
+
+        .input-wrap:hover{
+            background:rgba(255,255,255,.06);
+        }
+
+        .input-wrap.is-focused{
+            border-color:#c59d5f;
+
+            box-shadow:
+                0 0 0 4px rgba(197,157,95,.10),
+                0 10px 25px rgba(0,0,0,.15);
+
+            background:rgba(255,255,255,.06);
+        }
+
+        .input-wrap input{
+            width:100%;
+            height:56px;
+
+            padding:0 16px;
+
+            background:transparent;
+            border:none;
+            outline:none;
+
+            color:#fff;
+            font-size:1rem;
+
+            border-radius:14px;
+        }
+
+        .input-wrap input::placeholder{
+            color:rgba(255,255,255,.42);
+        }
+
+        .helper-text,
+        .error-text{
+            display:block;
+            margin-top:8px;
+            font-size:.84rem;
+        }
+
+        .helper-text{
+            color:rgba(255,255,255,.58);
+        }
+
+        .error-text{
+            color:#ff9c9c;
+        }
+
+        .submit-btn{
+            width:100%;
+
+            border:none;
+            border-radius:14px;
+
+            background:linear-gradient(
+                135deg,
+                #c59d5f,
+                #8b5e34
+            );
+
+            color:#fff;
+
+            height:58px;
+
+            font-size:1rem;
+            font-weight:bold;
+            letter-spacing:.5px;
+
+            cursor:pointer;
+
+            transition:
+                transform .2s ease,
+                opacity .2s ease,
+                box-shadow .2s ease;
+
+            margin-top:8px;
+        }
+
+        .submit-btn:hover{
+            transform:translateY(-2px);
+
+            opacity:.96;
+
+            box-shadow:
+                0 10px 25px rgba(197,157,95,.22);
+        }
+
+        .actions{
+            display:flex;
+            gap:12px;
+            margin-top:18px;
+        }
+
+        .action-link{
+            flex:1;
+
+            text-align:center;
+            text-decoration:none;
+
+            padding:14px;
+
+            border-radius:14px;
+
+            font-size:.92rem;
+            font-weight:bold;
+
+            transition:.25s ease;
+        }
+
+        .action-link.login{
+            background:rgba(255,255,255,.05);
+
+            color:#fff;
+
+            border:1px solid rgba(255,255,255,.10);
+        }
+
+        .action-link.register{
+            border:1px solid rgba(197,157,95,.45);
+
+            color:#e7c48d;
+
+            background:rgba(197,157,95,.05);
+        }
+
+        .action-link:hover{
+            transform:translateY(-2px);
+        }
+
+        .action-link.login:hover{
+            background:rgba(255,255,255,.08);
+        }
+
+        .action-link.register:hover{
+            background:rgba(197,157,95,.12);
+            color:#fff;
+        }
+
+        @media(max-width:600px){
+
+            .forgot-box{
+                padding:34px 24px;
+            }
+
+            .forgot-box h1{
+                font-size:1.7rem;
+            }
+
+            .actions{
+                flex-direction:column;
+            }
+        }
+
+    </style>
 </head>
 <body>
-    <main class="auth-page">
-        <div class="auth-overlay"></div>
 
-        <section class="auth-card">
-            <h1 class="auth-title">Esqueci a Senha</h1>
+    <div class="forgot-wrapper">
+        <section class="forgot-box" id="forgot-box">
 
-            <form action="index.php?action=forgot_password_submit" method="POST" class="auth-form">
+            <div class="floating-glow"></div>
+
+            <h1>Recuperar Senha</h1>
+
+            <p class="forgot-description">
+                Informe o e-mail cadastrado para continuar o processo.
+            </p>
+
+            <form action="index.php?action=forgot_password_submit" method="POST" id="forgot-form">
+
                 <div class="form-group">
                     <label for="email">E-mail</label>
-                    <input type="email" id="email" name="email" placeholder="Digite seu e-mail" value="<?= e($data['email'] ?? '') ?>">
+
+                    <div class="input-wrap">
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="Digite seu e-mail"
+                            value="<?= e($data['email'] ?? '') ?>"
+                            autocomplete="email"
+                        >
+                    </div>
+
+                    <small class="helper-text">
+                        Você receberá acesso para redefinir sua senha.
+                    </small>
+
                     <?php if (!empty($errors['email'])): ?>
                         <small class="error-text"><?= e($errors['email']) ?></small>
                     <?php endif; ?>
                 </div>
 
-                <button type="submit" class="submit-btn">CONTINUAR</button>
+                <button type="submit" class="submit-btn" id="submit-btn">
+                    CONTINUAR
+                </button>
+
+                <div class="actions">
+                    <a href="index.php?action=login" class="action-link login">
+                        VOLTAR AO LOGIN
+                    </a>
+
+                    <a href="index.php?action=user_create" class="action-link register">
+                        CRIAR CONTA
+                    </a>
+                </div>
             </form>
         </section>
-    </main>
+    </div>
+
+    <script>
+        const forgotBox = document.getElementById('forgot-box');
+        const emailInput = document.getElementById('email');
+        const form = document.getElementById('forgot-form');
+        const submitBtn = document.getElementById('submit-btn');
+
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                forgotBox.classList.add('show');
+            }, 120);
+        });
+
+        const wrap = emailInput.closest('.input-wrap');
+
+        emailInput.addEventListener('focus', () => {
+            wrap.classList.add('is-focused');
+        });
+
+        emailInput.addEventListener('blur', () => {
+            wrap.classList.remove('is-focused');
+            emailInput.value = emailInput.value.trim().toLowerCase();
+        });
+
+        form.addEventListener('submit', () => {
+            submitBtn.textContent = 'PROCESSANDO...';
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.7';
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            const glow = document.querySelector('.floating-glow');
+
+            const moveX = (e.clientX / window.innerWidth) * 10;
+            const moveY = (e.clientY / window.innerHeight) * 10;
+
+            glow.style.transform = `translate(${moveX}px, ${moveY}px)`;
+        });
+    </script>
+
 </body>
 </html>
