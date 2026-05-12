@@ -21,8 +21,12 @@ CREATE TABLE cliente (
 CREATE TABLE barbeiro (
   id_barbeiro INT NOT NULL AUTO_INCREMENT,
   nome VARCHAR(100) NOT NULL,
-  PRIMARY KEY (id_barbeiro)
-) ENGINE=InnoDB;
+  email VARCHAR(155) NULL,
+
+  PRIMARY KEY (id_barbeiro),
+
+  UNIQUE KEY uq_barbeiro_email (email)
+) ENGINE=InnoDB;=InnoDB;
 
 -- -----------------------------------------------------
 -- Tabela servico
