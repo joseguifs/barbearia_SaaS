@@ -6,6 +6,7 @@ require_once __DIR__ . '/../app/controllers/AuthController.php';
 require_once __DIR__ . '/../app/controllers/UserController.php';
 require_once __DIR__ . '/../app/controllers/SchedulingReviewController.php';
 require_once __DIR__ . '/../app/controllers/SchedulingController.php';
+require_once __DIR__ . '/../app/APIs/ClientApi.php';
 require_once __DIR__ . '/../app/APIs/SchedulingApi.php';
 require_once __DIR__ . '/../app/APIs/AuthApi.php';
 
@@ -140,7 +141,14 @@ switch ($action) {
     case 'api_scheduling_demo_delete':
         (new SchedulingApi($pdo))->demoDeleteById($_GET['id'] ?? null);
         break;
-    
+
+    case 'api_auth_reset_password':
+        (new AuthApi($pdo))->resetPassword();
+        break;
+
+    case 'api_user':
+        (new ClientApiController($pdo))->handleRequest();
+        break;
     
     default:
         echo 'Rota não encontrada.';
