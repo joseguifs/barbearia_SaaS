@@ -92,5 +92,6 @@ class Client
 
         return $stmt->execute();
     }
+
 }
 
