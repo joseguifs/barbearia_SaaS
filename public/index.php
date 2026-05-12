@@ -6,6 +6,7 @@ require_once __DIR__ . '/../app/controllers/AuthController.php';
 require_once __DIR__ . '/../app/controllers/UserController.php';
 require_once __DIR__ . '/../app/controllers/SchedulingReviewController.php';
 require_once __DIR__ . '/../app/controllers/SchedulingController.php';
+require_once __DIR__ . '/../app/controllers/ServiceController.php';
 require_once __DIR__ . '/../app/APIs/BarberApi.php';
 
 $action = $_GET['action'] ?? 'login';
@@ -14,6 +15,7 @@ $authController = new AuthController($pdo);
 $userController = new UserController($pdo);
 $schedulingController = new SchedulingController($pdo);
 $reviewController = new SchedulingReviewController($pdo);
+$serviceController = new ServiceController($pdo);
 
 switch ($action) {
 
@@ -89,6 +91,24 @@ switch ($action) {
         $reviewController->reject();
         break;
 
+    case 'services':
+        $serviceController->index();
+        break;
+
+    case 'api_service_index':
+        $serviceController->apiIndex();
+        break;
+
+    case 'api_service_store':
+        $serviceController->apiStore();
+        break;
+
+    case 'api_service_update':
+        $serviceController->apiUpdate();
+        break;
+
+    case 'api_service_delete':
+        $serviceController->apiDelete();
     case 'api_barber_index':
         $api = new BarberApi();
         $api->index();
