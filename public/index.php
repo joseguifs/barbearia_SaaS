@@ -6,6 +6,7 @@ require_once __DIR__ . '/../app/controllers/AuthController.php';
 require_once __DIR__ . '/../app/controllers/UserController.php';
 require_once __DIR__ . '/../app/controllers/SchedulingReviewController.php';
 require_once __DIR__ . '/../app/controllers/SchedulingController.php';
+require_once __DIR__ . '/../app/controllers/ServiceController.php';
 
 $action = $_GET['action'] ?? 'login';
 
@@ -13,6 +14,7 @@ $authController = new AuthController($pdo);
 $userController = new UserController($pdo);
 $schedulingController = new SchedulingController($pdo);
 $reviewController = new SchedulingReviewController($pdo);
+$serviceController = new ServiceController($pdo);
 
 switch ($action) {
 
@@ -86,6 +88,26 @@ switch ($action) {
 
     case 'review_reject':
         $reviewController->reject();
+        break;
+
+    case 'services':
+        $serviceController->index();
+        break;
+
+    case 'api_service_index':
+        $serviceController->apiIndex();
+        break;
+
+    case 'api_service_store':
+        $serviceController->apiStore();
+        break;
+
+    case 'api_service_update':
+        $serviceController->apiUpdate();
+        break;
+
+    case 'api_service_delete':
+        $serviceController->apiDelete();
         break;
 
     default:

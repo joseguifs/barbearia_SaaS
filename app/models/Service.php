@@ -11,7 +11,7 @@ class Service
 
     public function all()
     {
-        $sql = "SELECT id_servico, nome, preco, duracao
+        $sql = "SELECT id_servico, nome, descricao, preco, duracao
                 FROM servico
                 ORDER BY nome ASC";
 
@@ -21,11 +21,69 @@ class Service
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function find($id)
+    {
+        $sql = "SELECT id_servico, nome, descricao, preco, duracao
+                FROM servico
+                WHERE id_servico = :id_servico
+                LIMIT 1";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':id_servico', $id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function create(array $dados)
+    {
+        $sql = "INSERT INTO servico (nome, descricao, preco, duracao)
+                VALUES (:nome, :descricao, :preco, :duracao)";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':nome', $dados['nome']);
+        $stmt->bindValue(':descricao', $dados['descricao']);
+        $stmt->bindValue(':preco', $dados['preco']);
+        $stmt->bindValue(':duracao', $dados['duracao'], PDO::PARAM_INT);
+
+        return $stmt->execute();
+    }
+
+    public function update($id, array $dados)
+    {
+        $sql = "UPDATE servico
+                SET nome = :nome,
+                    descricao = :descricao,
+                    preco = :preco,
+                    duracao = :duracao
+                WHERE id_servico = :id_servico";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':nome', $dados['nome']);
+        $stmt->bindValue(':descricao', $dados['descricao']);
+        $stmt->bindValue(':preco', $dados['preco']);
+        $stmt->bindValue(':duracao', $dados['duracao'], PDO::PARAM_INT);
+        $stmt->bindValue(':id_servico', $id, PDO::PARAM_INT);
+
+        return $stmt->execute();
+    }
+
+    public function delete($id)
+    {
+        $sql = "DELETE FROM servico WHERE id_servico = :id_servico";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':id_servico', $id, PDO::PARAM_INT);
+
+        return $stmt->execute();
+    }
+
     public function allByBarber($idBarbeiro)
     {
         $sql = "SELECT 
                     s.id_servico,
                     s.nome,
+                    s.descricao,
                     s.preco,
                     s.duracao
                 FROM barbeiro_servico bs
@@ -55,7 +113,6 @@ class Service
                 AND id_servico IN ($placeholders)";
 
         $stmt = $this->pdo->prepare($sql);
-
         $params = array_merge([$idBarbeiro], $servicos);
         $stmt->execute($params);
 
