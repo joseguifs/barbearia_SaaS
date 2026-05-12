@@ -9,6 +9,8 @@ require_once __DIR__ . '/../app/controllers/SchedulingController.php';
 require_once __DIR__ . '/../app/APIs/ClientApi.php';
 require_once __DIR__ . '/../app/APIs/SchedulingApi.php';
 require_once __DIR__ . '/../app/APIs/AuthApi.php';
+require_once __DIR__ . '/../app/APIs/BarberApi.php';
+
 
 $action = $_GET['action'] ?? 'login';
 
@@ -121,7 +123,6 @@ switch ($action) {
         (new SchedulingApi($pdo))->delete($_GET['id'] ?? null);
         break;
 
-
     case 'api_scheduling_my_active':
         (new SchedulingApi($pdo))->getMyActive();
         break;
@@ -148,6 +149,39 @@ switch ($action) {
 
     case 'api_user':
         (new ClientApiController($pdo))->handleRequest();
+        break;
+
+    
+    case 'api_barber_index':
+        (new BarberApi($pdo))->index();
+        break;
+
+    case 'api_barber_show':
+        (new BarberApi($pdo))->show();
+        break;
+
+    case 'api_barber_services':
+        (new BarberApi($pdo))->getServicesByBarber();
+        break;
+
+    case 'api_barber_store':
+        (new BarberApi($pdo))->store();
+        break;
+
+    case 'api_barber_update':
+        (new BarberApi($pdo))->update();
+        break;
+
+    case 'admin_barbers':
+        require_once __DIR__ . '/../app/views/admin/barbers.php';
+        break;
+        
+    case 'api_barber_update_services':
+        (new BarberApi($pdo))->updateServices();
+        break;
+
+    case 'api_barber_delete':
+        (new BarberApi($pdo))->delete();
         break;
     
     default:
