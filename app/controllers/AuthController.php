@@ -17,7 +17,10 @@ class AuthController
         $this->clientModel = new Client($pdo);
         $this->schedulingModel = new Scheduling($pdo);
         $this->userModel = new User($pdo);
+    }
 
+    private function startSessionIfNeeded()
+    {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
@@ -25,18 +28,15 @@ class AuthController
 
     private function renderLogin(?string $errorMessage = null, array $old = [])
     {
-        $errors = [];
-        $data = $old;
-
-        if ($errorMessage !== null) {
-            $errors['geral'] = $errorMessage;
-        }
-
         require __DIR__ . '/../views/auth/login.php';
     }
 
     public function login()
     {
+        if (!empty($_COOKIE[session_name()])) {
+            $this->startSessionIfNeeded();
+        }
+
         if (!empty($_SESSION['id_cliente'])) {
             header('Location: index.php?action=home');
             exit;
@@ -47,37 +47,7 @@ class AuthController
 
     public function authenticate()
     {
-        $email = trim($_POST['email'] ?? '');
-        $senha = trim($_POST['senha'] ?? '');
-
-        $old = [
-            'email' => $email
-        ];
-
-        if ($email === '' || $senha === '') {
-            $this->renderLogin('Preencha email e senha.', $old);
-            return;
-        }
-
-        $cliente = $this->clientModel->findByEmail($email);
-
-        if (!$cliente) {
-            $this->renderLogin('Email ou senha inválidos.', $old);
-            return;
-        }
-
-        $senhaBanco = $cliente['senha'] ?? '';
-
-        if (!password_verify($senha, $senhaBanco)) {
-            $this->renderLogin('Email ou senha inválidos.', $old);
-            return;
-        }
-
-        $_SESSION['id_cliente'] = $cliente['id_cliente'];
-        $_SESSION['cliente_nome'] = $cliente['nome'];
-        $_SESSION['cliente_email'] = $cliente['email'];
-
-        header('Location: index.php?action=home');
+        header('Location: index.php?action=login');
         exit;
     }
 
@@ -88,40 +58,57 @@ class AuthController
 
     public function handleForgotPassword()
     {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: index.php?action=forgot_password');
+            exit;
+        }
+
         $email = trim($_POST['email'] ?? '');
 
+        $data = [
+            'email' => $email
+        ];
+
         $errors = [];
-        $data = ['email' => $email];
 
         if ($email === '') {
             $errors['email'] = 'O e-mail é obrigatório.';
-            $this->forgotPassword($errors, $data);
-            return;
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors['email'] = 'Informe um e-mail válido.';
         }
 
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errors['email'] = 'Informe um e-mail válido.';
-            $this->forgotPassword($errors, $data);
+        if (!empty($errors)) {
+            $this->forgotPassword($data, $errors);
             return;
         }
 
         $cliente = $this->clientModel->findByEmail($email);
 
         if (!$cliente) {
-            $errors['email'] = 'Nenhum usuário encontrado com esse e-mail.';
-            $this->forgotPassword($errors, $data);
+            $errors['email'] = 'Nenhuma conta foi encontrada com este e-mail.';
+            $this->forgotPassword($data, $errors);
             return;
         }
 
-        header('Location: index.php?action=reset_password_form&email=' . urlencode($email));
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        $_SESSION['reset_email'] = $cliente['email'];
+
+       $this->startSessionIfNeeded();
+
+        $_SESSION['reset_email'] = $cliente['email'];
+
+        header('Location: index.php?action=reset_password_form');
         exit;
     }
 
     public function resetPasswordForm(array $errors = [])
     {
-        $email = $_GET['email'] ?? '';
+        $this->startSessionIfNeeded();
 
-        if ($email === '') {
+        if (empty($_SESSION['reset_email'])) {
             header('Location: index.php?action=forgot_password');
             exit;
         }
@@ -131,16 +118,24 @@ class AuthController
 
     public function resetPassword()
     {
-        $email = trim($_POST['email'] ?? '');
+        $this->startSessionIfNeeded();
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: index.php?action=forgot_password');
+            exit;
+        }
+
+        if (empty($_SESSION['reset_email'])) {
+            header('Location: index.php?action=forgot_password');
+            exit;
+        }
+
+        $email = $_SESSION['reset_email'];
+
         $senha = trim($_POST['senha'] ?? '');
         $confirmarSenha = trim($_POST['confirmar_senha'] ?? '');
 
         $errors = [];
-
-        if ($email === '') {
-            header('Location: index.php?action=forgot_password');
-            exit;
-        }
 
         if ($senha === '') {
             $errors['senha'] = 'A nova senha é obrigatória.';
@@ -154,59 +149,94 @@ class AuthController
             $errors['confirmar_senha'] = 'As senhas não coincidem.';
         }
 
-        $cliente = $this->clientModel->findByEmail($email);
-
-        if (!$cliente) {
-            $errors['geral'] = 'Usuário não encontrado.';
-        }
-
         if (!empty($errors)) {
-            $_GET['email'] = $email;
             $this->resetPasswordForm($errors);
             return;
         }
 
-        $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
-        $sucesso = $this->userModel->updatePassword($cliente['id_cliente'], $senhaHash);
+        try {
+            $payload = [
+                'email' => $email,
+                'senha' => $senha,
+                'confirmar_senha' => $confirmarSenha
+            ];
 
-        if ($sucesso) {
+            $apiUrl = $this->getBaseUrl() . '/index.php?action=api_auth_reset_password';
+
+            $context = stream_context_create([
+                'http' => [
+                    'method' => 'PUT',
+                    'header' => "Content-Type: application/json\r\nAccept: application/json\r\n",
+                    'content' => json_encode($payload, JSON_UNESCAPED_UNICODE),
+                    'ignore_errors' => true
+                ]
+            ]);
+
+            $apiResponse = file_get_contents($apiUrl, false, $context);
+
+            if ($apiResponse === false) {
+                $errors['geral'] = 'Não foi possível conectar com a API de autenticação.';
+                $this->resetPasswordForm($errors);
+                return;
+            }
+
+            $result = json_decode($apiResponse, true);
+
+            if (!is_array($result)) {
+                $errors['geral'] = 'A API retornou uma resposta inválida.';
+                $this->resetPasswordForm($errors);
+                return;
+            }
+
+            if (empty($result['success'])) {
+                $errors['geral'] = $result['message'] ?? 'Não foi possível redefinir a senha.';
+                $this->resetPasswordForm($errors);
+                return;
+            }
+
+            unset($_SESSION['reset_email']);
+
             header('Location: index.php?action=login');
             exit;
-        }
 
-        $errors['geral'] = 'Não foi possível redefinir a senha.';
-        $_GET['email'] = $email;
-        $this->resetPasswordForm($errors);
+        } catch (Exception $e) {
+            $errors['geral'] = 'Erro ao consumir a API: ' . $e->getMessage();
+            $this->resetPasswordForm($errors);
+            return;
+        }
     }
 
     public function home()
     {
+        $this->startSessionIfNeeded();
+
         if (empty($_SESSION['id_cliente'])) {
             header('Location: index.php?action=login');
             exit;
         }
 
         $clienteNome = $_SESSION['cliente_nome'] ?? 'Usuário';
-        $proximoAgendamento = $this->schedulingModel->getNextByClient($_SESSION['id_cliente']);
 
         require __DIR__ . '/../views/home/index.php';
     }
 
     public function logout()
     {
+        $this->startSessionIfNeeded();
+
         $_SESSION = [];
 
-        if (ini_get('session.use_cookies')) {
+        if (ini_get("session.use_cookies")) {
             $params = session_get_cookie_params();
 
             setcookie(
                 session_name(),
                 '',
                 time() - 42000,
-                $params['path'],
-                $params['domain'],
-                $params['secure'],
-                $params['httponly']
+                $params["path"],
+                $params["domain"],
+                $params["secure"],
+                $params["httponly"]
             );
         }
 
@@ -215,4 +245,20 @@ class AuthController
         header('Location: index.php?action=login');
         exit;
     }
+
+
+    private function getBaseUrl()
+    {
+        $https = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+        $scheme = $https ? 'https' : 'http';
+
+        $host = $_SERVER['HTTP_HOST'];
+
+        $scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+        $scriptDir = rtrim($scriptDir, '/');
+
+        return $scheme . '://' . $host . $scriptDir;
+    }
+
+
 }
