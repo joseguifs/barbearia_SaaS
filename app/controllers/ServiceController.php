@@ -73,6 +73,29 @@ class ServiceController
         }
     }
 
+
+    public function apiShow()
+    {
+        $id = $_GET['id'] ?? null;
+
+        if (!$id) {
+            $this->jsonResponse(false, 'ID do serviço não informado.', null, 400);
+        }
+
+        try {
+            $servico = $this->serviceModel->find((int)$id);
+
+            if (!$servico) {
+                $this->jsonResponse(false, 'Serviço não encontrado.', null, 404);
+            }
+
+            $this->jsonResponse(true, 'Serviço encontrado com sucesso.', $servico);
+
+        } catch (PDOException $e) {
+            $this->jsonResponse(false, 'Erro ao buscar serviço.', null, 500);
+        }
+    }
+
     public function apiStore()
     {
         try {
