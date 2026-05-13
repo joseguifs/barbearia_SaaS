@@ -1,9 +1,9 @@
 <?php
 
 require_once __DIR__ . '/../config/database.php';
-
 require_once __DIR__ . '/../app/controllers/AuthController.php';
 require_once __DIR__ . '/../app/controllers/UserController.php';
+require_once __DIR__ . '/../app/controllers/ServiceController.php';
 require_once __DIR__ . '/../app/controllers/SchedulingReviewController.php';
 require_once __DIR__ . '/../app/controllers/SchedulingController.php';
 require_once __DIR__ . '/../app/APIs/ClientApi.php';
@@ -107,10 +107,6 @@ switch ($action) {
         (new SchedulingApi($pdo))->store();
         break;
     
-    case 'api_scheduling_get_all':
-        (new SchedulingApi($pdo))->getAll();
-        break;
-
     case 'api_scheduling_get_by_id':
         (new SchedulingApi($pdo))->getById($_GET['id'] ?? null);
         break;
@@ -135,11 +131,23 @@ switch ($action) {
         (new SchedulingApi($pdo))->getAvailableTimes();
         break;
 
-    case 'api_scheduling_demo_get_by_id':
+    case 'api_scheduling_get_all': # api de agendamento começa aqui
+        (new SchedulingApi($pdo))->getAll();
+        break;
+
+    case 'api_scheduling_demo_get_by_id': 
         (new SchedulingApi($pdo))->demoGetById($_GET['id'] ?? null);
         break;
 
-    case 'api_scheduling_demo_delete':
+    case 'api_scheduling_demo_get_by_id':
+            (new SchedulingApi($pdo))->demoPost();
+            break;
+
+    case 'api_scheduling_demo_update':
+        (new SchedulingApi($pdo))->demoUpdate($_GET['id'] ?? null);
+        break;
+
+    case 'api_scheduling_demo_delete': # termina aqui
         (new SchedulingApi($pdo))->demoDeleteById($_GET['id'] ?? null);
         break;
 
@@ -147,12 +155,11 @@ switch ($action) {
         (new AuthApi($pdo))->resetPassword();
         break;
 
-    case 'api_user':
+    case 'api_user': # api de usuarios, com todos os verbos para teste
         (new ClientApiController($pdo))->handleRequest();
         break;
 
-    
-    case 'api_barber_index':
+    case 'api_barber_index': # comeca aqui
         (new BarberApi($pdo))->index();
         break;
 
@@ -180,8 +187,32 @@ switch ($action) {
         (new BarberApi($pdo))->updateServices();
         break;
 
-    case 'api_barber_delete':
+    case 'api_barber_delete': # esse seria o ultimo
         (new BarberApi($pdo))->delete();
+        break;
+    
+    case 'services':
+        (new ServiceController($pdo))->index();
+        break;
+
+     case 'api_service_index': # comeca aqui
+        (new ServiceController($pdo))->apiIndex();
+        break;
+    
+    case 'api_service_get':
+        (new ServiceController($pdo))->apiShow();
+        break;
+
+    case 'api_service_store':
+        (new ServiceController($pdo))->apiStore();
+        break;
+
+    case 'api_service_update':
+        (new ServiceController($pdo))->apiUpdate();
+        break;
+    
+    case 'api_service_delete': # termina aqui
+        (new ServiceController($pdo))->apiDelete();
         break;
     
     default:
