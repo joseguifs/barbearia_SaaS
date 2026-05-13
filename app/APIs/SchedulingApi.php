@@ -606,6 +606,293 @@ class SchedulingApi extends BaseApi
     }
 
 
+    public function demoUpdate($id = null)
+    {
+        try {
+            $id = $id ?? ($_GET['id'] ?? null);
+            $id = (int) $id;
+
+            if ($id <= 0) {
+                $this->json([
+                    'success' => false,
+                    'message' => 'ID do agendamento inválido.'
+                ], 400);
+            }
+
+            $agendamento = $this->schedulingModel->getById($id);
+
+            if (!$agendamento) {
+                $this->json([
+                    'success' => false,
+                    'message' => 'Agendamento não encontrado.'
+                ], 404);
+            }
+
+            if (in_array($agendamento['status'], ['cancelado', 'concluido'], true)) {
+                $this->json([
+                    'success' => false,
+                    'message' => 'Este agendamento não pode mais ser alterado.'
+                ], 422);
+            }
+
+            $input = json_decode(file_get_contents('php://input'), true);
+
+            if (!is_array($input) || empty($input)) {
+                $this->json([
+                    'success' => false,
+                    'message' => 'Nenhum dado foi enviado para atualização.'
+                ], 400);
+            }
+
+            $dados = [];
+            $servicosSelecionados = null;
+
+            if (isset($input['servicos'])) {
+                $servicosSelecionados = $input['servicos'];
+
+                if (!is_array($servicosSelecionados)) {
+                    $servicosSelecionados = [$servicosSelecionados];
+                }
+
+                $servicosSelecionados = array_map('intval', $servicosSelecionados);
+                $servicosSelecionados = array_values(array_filter($servicosSelecionados));
+
+                if (empty($servicosSelecionados)) {
+                    $this->json([
+                        'success' => false,
+                        'message' => 'Selecione pelo menos um serviço.'
+                    ], 422);
+                }
+
+                if (!$this->serviceModel->barberHasAllServices((int)$agendamento['id_barbeiro'], $servicosSelecionados)) {
+                    $this->json([
+                        'success' => false,
+                        'message' => 'O barbeiro selecionado não atende todos os serviços escolhidos.'
+                    ], 422);
+                }
+            }
+
+            $servicosParaValidar = $servicosSelecionados;
+
+            if ($servicosParaValidar === null) {
+                $servicosAtuais = $this->schedulingModel->getServicesBySchedulingId($id);
+
+                $servicosParaValidar = [];
+
+                foreach ($servicosAtuais as $servicoAtual) {
+                    $servicosParaValidar[] = (int) $servicoAtual['id_servico'];
+                }
+            }
+
+            if (empty($servicosParaValidar)) {
+                $this->json([
+                    'success' => false,
+                    'message' => 'Não foi possível identificar os serviços do agendamento.'
+                ], 422);
+            }
+
+            $novaDataHora = null;
+
+            if (!empty($input['data_hora'])) {
+                $novaDataHora = trim($input['data_hora']);
+            } elseif (!empty($input['data_agendamento']) && !empty($input['hora_agendamento'])) {
+                $data = trim($input['data_agendamento']);
+                $hora = trim($input['hora_agendamento']);
+
+                $novaDataHora = $data . ' ' . $hora . ':00';
+            }
+
+            if ($novaDataHora !== null) {
+                $timestamp = strtotime($novaDataHora);
+
+                if (!$timestamp) {
+                    $this->json([
+                        'success' => false,
+                        'message' => 'Data ou horário inválido.'
+                    ], 422);
+                }
+
+                $novaDataHora = date('Y-m-d H:i:s', $timestamp);
+
+                if (!$this->schedulingModel->isTimeAvailable(
+                    (int) $agendamento['id_barbeiro'],
+                    $novaDataHora,
+                    $servicosParaValidar,
+                    $id
+                )) {
+                    $this->json([
+                        'success' => false,
+                        'message' => 'Esse horário não está disponível para o barbeiro selecionado.'
+                    ], 409);
+                }
+
+                $dados['data_hora'] = $novaDataHora;
+            }
+
+            if (array_key_exists('descricao', $input)) {
+                $dados['descricao'] = trim($input['descricao']);
+            }
+
+            if (array_key_exists('status', $input)) {
+                $dados['status'] = trim($input['status']);
+            } elseif (in_array($agendamento['status'], ['agendado', 'checked'], true)) {
+                $dados['status'] = 'pendente';
+            }
+
+            if (empty($dados) && $servicosSelecionados === null) {
+                $this->json([
+                    'success' => false,
+                    'message' => 'Nenhum dado válido foi enviado para atualização.'
+                ], 400);
+            }
+
+            $this->schedulingModel->updateScheduleChange(
+                $id,
+                $dados,
+                $servicosSelecionados
+            );
+
+            $agendamentoAtualizado = $this->schedulingModel->getById($id);
+
+            $this->json([
+                'success' => true,
+                'message' => 'Agendamento demo atualizado com sucesso.',
+                'data' => $agendamentoAtualizado
+            ], 200);
+
+        } catch (Throwable $e) {
+            $this->json([
+                'success' => false,
+                'message' => 'Erro ao atualizar agendamento demo.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
+
+
+    public function demoPost()
+    {
+        try {
+            $input = json_decode(file_get_contents('php://input'), true);
+
+            if (!is_array($input)) {
+                $this->json([
+                    'success' => false,
+                    'message' => 'JSON inválido.'
+                ], 400);
+            }
+
+            $idCliente = (int)($input['id_cliente'] ?? 0);
+            $idBarbeiro = (int)($input['barbeiro_id'] ?? 0);
+            $servicosSelecionados = $input['servicos'] ?? [];
+            $data = trim($input['data_agendamento'] ?? '');
+            $hora = trim($input['hora_agendamento'] ?? '');
+            $descricao = trim($input['descricao'] ?? 'Agendamento criado pela rota demo.');
+
+            if (!is_array($servicosSelecionados)) {
+                $servicosSelecionados = [$servicosSelecionados];
+            }
+
+            if ($idCliente <= 0 || $idBarbeiro <= 0 || empty($servicosSelecionados) || $data === '' || $hora === '') {
+                $this->json([
+                    'success' => false,
+                    'message' => 'Informe id_cliente, barbeiro_id, serviço(s), data e horário.'
+                ], 422);
+            }
+
+            $servicosSelecionados = array_map('intval', $servicosSelecionados);
+            $servicosSelecionados = array_values(array_filter($servicosSelecionados));
+
+            if (empty($servicosSelecionados)) {
+                $this->json([
+                    'success' => false,
+                    'message' => 'Selecione pelo menos um serviço válido.'
+                ], 422);
+            }
+
+            if (!$this->clientModel->find($idCliente)) {
+                $this->json([
+                    'success' => false,
+                    'message' => 'Cliente informado não existe.'
+                ], 422);
+            }
+
+            if (!$this->serviceModel->barberHasAllServices($idBarbeiro, $servicosSelecionados)) {
+                $this->json([
+                    'success' => false,
+                    'message' => 'O barbeiro selecionado não atende todos os serviços escolhidos.'
+                ], 422);
+            }
+
+            $dataHora = $data . ' ' . $hora . ':00';
+
+            $timestamp = strtotime($dataHora);
+
+            if (!$timestamp) {
+                $this->json([
+                    'success' => false,
+                    'message' => 'Data ou horário inválido.'
+                ], 422);
+            }
+
+            $dataHora = date('Y-m-d H:i:s', $timestamp);
+
+            if (!$this->schedulingModel->isTimeAvailable($idBarbeiro, $dataHora, $servicosSelecionados)) {
+                $this->json([
+                    'success' => false,
+                    'message' => 'Esse horário não está disponível para o barbeiro selecionado.'
+                ], 409);
+            }
+
+            $dados = [
+                'id_cliente' => $idCliente,
+                'id_barbeiro' => $idBarbeiro,
+                'data_hora' => $dataHora,
+                'descricao' => $descricao,
+                'status' => 'pendente'
+            ];
+
+            $novoId = $this->schedulingModel->create($dados, $servicosSelecionados);
+
+            $this->json([
+                'success' => true,
+                'message' => 'Agendamento demo criado com sucesso.',
+                'id' => $novoId,
+                'data' => [
+                    'id_cliente' => $idCliente,
+                    'id_barbeiro' => $idBarbeiro,
+                    'servicos' => $servicosSelecionados,
+                    'data_hora' => $dataHora,
+                    'descricao' => $descricao,
+                    'status' => 'pendente'
+                ]
+            ], 201);
+
+        } catch (PDOException $e) {
+            if ($e->getCode() == 23000) {
+                $this->json([
+                    'success' => false,
+                    'message' => 'Esse barbeiro já possui agendamento nesse horário.'
+                ], 409);
+            }
+
+            $this->json([
+                'success' => false,
+                'message' => 'Erro ao criar agendamento demo.',
+                'error' => $e->getMessage()
+            ], 500);
+
+        } catch (Throwable $e) {
+            $this->json([
+                'success' => false,
+                'message' => 'Erro ao criar agendamento demo.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
     public function demoGetById($id = null)
     {
         try {
