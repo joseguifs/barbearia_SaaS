@@ -1,0 +1,7 @@
+# PHPUnit
+phpunit*.phar
+.phpunit.cache/
+
+# Composer
+vendor/
+
