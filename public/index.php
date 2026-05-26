@@ -7,13 +7,12 @@ require_once __DIR__ . '/../app/controllers/ProfileController.php';
 require_once __DIR__ . '/../app/controllers/ServiceController.php';
 require_once __DIR__ . '/../app/controllers/SchedulingReviewController.php';
 require_once __DIR__ . '/../app/controllers/SchedulingController.php';
+require_once __DIR__ . '/../app/APIs/ClientApi.php';
+require_once __DIR__ . '/../app/APIs/SchedulingApi.php';
+require_once __DIR__ . '/../app/APIs/AuthApi.php';
+require_once __DIR__ . '/../app/controllers/ProfileController.php';
+require_once __DIR__ . '/../app/APIs/BarberApi.php';
 require_once __DIR__ . '/../app/controllers/BarberController.php';
-
-// Junto com as outras instâncias, adicione:
-$barberController = new BarberController($pdo);
-
-// Junto com as outras instâncias, adicione:
-$barberController = new BarberController($pdo);
 
 
 
@@ -144,10 +143,6 @@ switch ($action) {
         (new SchedulingApi($pdo))->demoGetById($_GET['id'] ?? null);
         break;
 
-    case 'api_scheduling_demo_get_by_id':
-            (new SchedulingApi($pdo))->demoPost();
-            break;
-
     case 'api_scheduling_demo_update':
         (new SchedulingApi($pdo))->demoUpdate($_GET['id'] ?? null);
         break;
@@ -222,6 +217,59 @@ switch ($action) {
     
     case 'api_service_delete': # termina aqui
         (new ServiceController($pdo))->apiDelete();
+        break;
+
+    case 'barber_login':
+        require_once __DIR__ . '/../app/views/admin/barber_login.php';
+        break;
+
+    case 'api_barber_login':
+        require_once __DIR__ . '/../app/APIs/AuthApi.php';
+        $api = new AuthApi($pdo);
+        $api->loginBarber();
+        break;
+
+    case 'api_barber_me':
+        require_once __DIR__ . '/../app/APIs/AuthApi.php';
+        $api = new AuthApi($pdo);
+        $api->barberMe();
+        break;
+
+    case 'barber_logout':
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        unset(
+            $_SESSION['id_barbeiro'],
+            $_SESSION['barbeiro_nome'],
+            $_SESSION['barbeiro_email'],
+            $_SESSION['tipo_usuario']
+        );
+
+        header('Location: index.php?action=barber_login');
+        exit;
+
+    case 'review_show':
+        require_once __DIR__ . '/../app/controllers/SchedulingReviewController.php';
+        $controller = new SchedulingReviewController($pdo);
+        $controller->show();
+        break;
+
+    case 'barber_profile':
+        (new BarberController($pdo))->profile();
+        break;
+
+    case 'profile':
+        (new ProfileController($pdo))->show();
+        break;
+
+    case 'profile_edit':
+        (new ProfileController($pdo))->edit();
+        break;
+
+    case 'profile_update':
+        (new ProfileController($pdo))->update();
         break;
     
     case 'profile':

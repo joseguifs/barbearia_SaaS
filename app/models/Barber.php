@@ -273,6 +273,21 @@ class Barber
         return (int) ($result['total'] ?? 0);
     }
 
+
+    public function findByEmail($email)
+    {
+        $sql = "SELECT id_barbeiro, nome, email, senha 
+                FROM barbeiro 
+                WHERE email = :email 
+                LIMIT 1";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':email', $email);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     private function findNextAvailableBarber($idBarbeiroAtual)
     {
         $sqlNext = "SELECT id_barbeiro, nome, email

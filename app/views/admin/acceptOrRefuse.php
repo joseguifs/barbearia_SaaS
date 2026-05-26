@@ -1,4 +1,11 @@
 <?php
+
+$message = $message ?? $_GET['message'] ?? null;
+$agendamentos = $agendamentos ?? [];
+$totalPendentes = count($agendamentos);
+$barbeiroNome = $_SESSION['barbeiro_nome'] ?? 'Barbeiro';
+
+
 if (!function_exists('e')) {
     function e($valor)
     {
@@ -25,8 +32,20 @@ $totalPendentes = count($agendamentos);
         <a href="index.php?action=home" class="logo">BARBERTIME</a>
 
         <nav class="navbar">
-            <a href="index.php?action=home">Início</a>
-            <a href="index.php?action=review_pending" class="active">Agendamentos Pendentes</a>
+            <a href="index.php?action=review_pending" class="active">
+                Agendamentos Pendentes
+            </a>
+
+            <form 
+                action="index.php?action=barber_logout" 
+                method="POST" 
+                class="logout-form"
+                onsubmit="return confirm('Deseja sair da conta de barbeiro?');"
+            >
+                <button type="submit" class="logout-button">
+                    Sair
+                </button>
+            </form>
         </nav>
     </header>
 
@@ -37,11 +56,11 @@ $totalPendentes = count($agendamentos);
             <aside class="review-side reveal-item">
                 <span class="side-tag">Painel de gestão</span>
 
-                <h1>Agendamentos pendentes</h1>
+                <h1>Meus agendamentos pendentes</h1>
 
                 <p>
-                    Analise as solicitações feitas pelos clientes e confirme ou recuse
-                    cada atendimento conforme a disponibilidade da barbearia.
+                    Analise as solicitações feitas pelos seus clientes e confirme ou recuse
+                    cada atendimento conforme sua disponibilidade.
                 </p>
 
                 <div class="manager-box">
@@ -50,8 +69,8 @@ $totalPendentes = count($agendamentos);
                     </div>
 
                     <div>
-                        <span>Área administrativa</span>
-                        <strong>Gestão de agendamentos</strong>
+                        <span>Barbeiro logado</span>
+                        <strong><?= e($barbeiroNome) ?></strong>
                     </div>
                 </div>
 
@@ -143,6 +162,14 @@ $totalPendentes = count($agendamentos);
                                 </div>
 
                                 <div class="appointment-actions">
+
+                                    <a 
+                                        href="index.php?action=review_show&id=<?= (int) $agendamento['id_agendamento'] ?>" 
+                                        class="btn-review btn-details"
+                                    >
+                                        <span class="btn-icon">👁</span>
+                                        <span>Ver mais detalhes</span>
+                                    </a>
 
                                     <form action="index.php?action=review_accept" method="POST" class="review-form">
                                         <input
