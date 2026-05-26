@@ -53,24 +53,39 @@ class Client
     {
         $sql = "INSERT INTO cliente (nome, telefone, email, senha) VALUES (:nome, :telefone, :email, :senha)";
         $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute([
+        $stmt->execute([
             ':nome' => $nome,
             ':telefone' => $telefone,
             ':email' => $email,
             ':senha' => $senha
         ]);
+
+        return [
+            'id_cliente' => $this->pdo->lastInsertId(),
+            'nome' => $nome,
+            'telefone' => $telefone,
+            'email' => $email
+        ];
+        
     }
 
     public function update($id, $nome, $telefone, $email) 
     {
         $sql = "UPDATE cliente SET nome = :nome, telefone = :telefone, email = :email WHERE id_cliente = :id";
         $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute([
+        $stmt->execute([
             ':nome' => $nome,
             ':telefone' => $telefone,
             ':email' => $email,
             ':id' => $id
         ]);
+
+        return [
+            'id_cliente' => $this->pdo->lastInsertId(),
+            'nome' => $nome,
+            'telefone' => $telefone,
+            'email' => $email
+        ];
     }
 
     public function delete($id) 
@@ -92,5 +107,6 @@ class Client
 
         return $stmt->execute();
     }
+
 }
 

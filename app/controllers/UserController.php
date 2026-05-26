@@ -19,7 +19,7 @@ class UserController
     public function store()
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: index.php?action=user_create&success=1');
+            header('Location: index.php?action=user_create');
             exit;
         }
 
@@ -58,6 +58,7 @@ class UserController
 
         if ($email !== '' && empty($errors['email'])) {
             $clienteExistente = $this->userModel->findByEmail($email);
+
             if ($clienteExistente) {
                 $errors['email'] = 'Este e-mail já está cadastrado.';
             }
@@ -68,24 +69,69 @@ class UserController
             return;
         }
 
-        $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
-        $emailFinal = ($email === '') ? null : $email;
-
         try {
-            $sucesso = $this->userModel->create($nome, $telefone, $emailFinal, $senhaHash);
+            $emailFinal = ($email === '') ? null : $email;
 
-            if ($sucesso) {
-                header('Location: index.php?action=user_create&success=1');
-                exit;
-            } else {
-                $errors['geral'] = 'Não foi possível cadastrar o cliente.';
+            $payload = [
+                'nome' => $nome,
+                'telefone' => $telefone,
+                'email' => $emailFinal,
+                'senha' => $senha
+            ];
+
+            $apiUrl = $this->getBaseUrl() . '/index.php?action=api_user';
+
+            $context = stream_context_create([
+                'http' => [
+                    'method' => 'POST',
+                    'header' => "Content-Type: application/json\r\nAccept: application/json\r\n",
+                    'content' => json_encode($payload, JSON_UNESCAPED_UNICODE),
+                    'ignore_errors' => true
+                ]
+            ]);
+
+            $apiResponse = file_get_contents($apiUrl, false, $context);
+
+            if ($apiResponse === false) {
+                $errors['geral'] = 'Não foi possível conectar com a API de clientes.';
                 $this->create($data, $errors);
+                return;
             }
 
-        } catch (PDOException $e) {
-            $errors['geral'] = 'Erro ao salvar no banco: ' . $e->getMessage();
+            $result = json_decode($apiResponse, true);
+
+            if (!is_array($result)) {
+                $errors['geral'] = 'A API retornou uma resposta inválida.';
+                $this->create($data, $errors);
+                return;
+            }
+
+            if (!empty($result['success'])) {
+                header('Location: index.php?action=user_create&success=1');
+                exit;
+            }
+
+            $errors['geral'] = $result['message'] ?? 'Não foi possível cadastrar o cliente.';
             $this->create($data, $errors);
+            return;
+
+        } catch (Exception $e) {
+            $errors['geral'] = 'Erro ao consumir a API: ' . $e->getMessage();
+            $this->create($data, $errors);
+            return;
         }
     }
-}
 
+    private function getBaseUrl()
+    {
+        $https = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+        $scheme = $https ? 'https' : 'http';
+
+        $host = $_SERVER['HTTP_HOST'];
+
+        $scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+        $scriptDir = rtrim($scriptDir, '/');
+
+        return $scheme . '://' . $host . $scriptDir;
+    }
+}
