@@ -6,6 +6,11 @@ require_once __DIR__ . '/../app/controllers/AuthController.php';
 require_once __DIR__ . '/../app/controllers/UserController.php';
 require_once __DIR__ . '/../app/controllers/SchedulingReviewController.php';
 require_once __DIR__ . '/../app/controllers/SchedulingController.php';
+require_once __DIR__ . '/../app/controllers/BarberController.php';
+
+// Junto com as outras instâncias, adicione:
+$barberController = new BarberController($pdo);
+
 
 $action = $_GET['action'] ?? 'login';
 
@@ -86,6 +91,10 @@ switch ($action) {
 
     case 'review_reject':
         $reviewController->reject();
+        break;
+    
+    case 'barber_profile':
+        $barberController->profile();
         break;
 
     default:
