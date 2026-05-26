@@ -142,10 +142,6 @@ switch ($action) {
         (new SchedulingApi($pdo))->demoGetById($_GET['id'] ?? null);
         break;
 
-    case 'api_scheduling_demo_get_by_id':
-            (new SchedulingApi($pdo))->demoPost();
-            break;
-
     case 'api_scheduling_demo_update':
         (new SchedulingApi($pdo))->demoUpdate($_GET['id'] ?? null);
         break;
