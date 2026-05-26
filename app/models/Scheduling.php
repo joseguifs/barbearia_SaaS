@@ -184,36 +184,4 @@ class Scheduling
 
         return $stmt->execute();
     }
-
-    public function getDailyAgenda($idBarbeiro, $data)
-    {
-        $sql = "SELECT 
-                    a.id_agendamento,
-                    a.data_hora,
-                    a.status,
-                    a.descricao,
-                    c.nome AS cliente_nome,
-                    c.telefone AS cliente_telefone
-                FROM agendamento a
-                INNER JOIN cliente c ON a.id_cliente = c.id_cliente
-                WHERE a.id_barbeiro = :id_barbeiro
-                  AND DATE(a.data_hora) = :data
-                ORDER BY a.data_hora ASC";
-
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->bindValue(':id_barbeiro', $idBarbeiro, PDO::PARAM_INT);
-        $stmt->bindValue(':data', $data);
-        $stmt->execute();
-
-        $agendamentos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        // Preenche os serviços para cada agendamento
-        foreach ($agendamentos as &$agendamento) {
-            $servicos = $this->getServicesBySchedulingId($agendamento['id_agendamento']);
-            $nomesServicos = array_column($servicos, 'nome');
-            $agendamento['servicos_texto'] = !empty($nomesServicos) ? implode(' + ', $nomesServicos) : 'Serviço não informado';
-        }
-
-        return $agendamentos;
-    }
 }
