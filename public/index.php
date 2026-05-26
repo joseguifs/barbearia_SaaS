@@ -3,7 +3,6 @@
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../app/controllers/AuthController.php';
 require_once __DIR__ . '/../app/controllers/UserController.php';
-require_once __DIR__ . '/../app/controllers/ProfileController.php';
 require_once __DIR__ . '/../app/controllers/ServiceController.php';
 require_once __DIR__ . '/../app/controllers/SchedulingReviewController.php';
 require_once __DIR__ . '/../app/controllers/SchedulingController.php';
@@ -162,10 +161,6 @@ switch ($action) {
     case 'api_barber_index': # comeca aqui
         (new BarberApi($pdo))->index();
         break;
-        
-    case 'barber_profile':
-        $barberController->profile();
-        break;
 
     case 'api_barber_show':
         (new BarberApi($pdo))->show();
@@ -272,17 +267,6 @@ switch ($action) {
         (new ProfileController($pdo))->update();
         break;
     
-    case 'profile':
-        (new ProfileController($pdo))->show();
-        break;
-
-    case 'profile_edit':
-        (new ProfileController($pdo))->edit();
-        break;
-
-    case 'profile_update':
-        (new ProfileController($pdo))->update();
-        break;
     default:
         echo 'Rota não encontrada.';
         break;
