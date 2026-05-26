@@ -79,7 +79,7 @@ class UserController
                 'senha' => $senha
             ];
 
-            $apiUrl = $this->getBaseUrl() . '/index.php?action=api_user_demo_get';
+            $apiUrl = $this->getBaseUrl() . '/index.php?action=api_user';
 
             $context = stream_context_create([
                 'http' => [
