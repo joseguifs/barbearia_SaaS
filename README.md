@@ -1,3 +1,23 @@
+# 🏛️ Instituição
+
+**Universidade Federal do Tocantins (UFT)**  
+Curso: Ciência da Computação  
+Disciplina: Engenharia de Software — 2026.1  
+Professor: Dr. Edeilson Milhomem da Silva
+
+---
+
+# 👥 Equipe
+
+| Integrante | GitHub |
+|---|---|
+| José Carlos Da Silva Neto | [@jcarlos721](https://github.com/jcarlos721) |
+| José Guilherme Ferreira Sobrinho | [@joseguifs](https://github.com/joseguifs) |
+| Matheus Felipe Lopes Valadares | [@MatheusF-del](https://github.com/MatheusF-del) |
+| Mario Felipe Bastos Noleto | [@Mario-FelipeBN](https://github.com/Mario-FelipeBN) |
+
+---
+
 # 💈 BarberTime
 
 O **BarberTime** é um projeto desenvolvido para a disciplina de **Engenharia de Software 2026.1** da **Universidade Federal do Tocantins (UFT)**, no curso de **Ciência da Computação**, ministrada pelo professor **Dr. Edeilson Milhomem da Silva**.
@@ -10,28 +30,6 @@ Além do contexto acadêmico, o BarberTime possui potencial de evolução para u
 
 ---
 
-
-
-# 🏛️ Instituição
-
-**Universidade Federal do Tocantins (UFT)**  
-Curso: Ciência da Computação  
-Disciplina: Engenharia de Software — 2026.1  
-Professor: Dr. Edeilson Milhomem da Silva
-
----
-
-
-# 👥 Equipe
-
-| Integrante | GitHub |
-|---|---|
-| José Carlos Da Silva Neto | [@jcarlos721](https://github.com/jcarlos721) |
-| José Guilherme Ferreira Sobrinho | [@joseguifs](https://github.com/joseguifs) |
-| Matheus Felipe Lopes Valadares | [@MatheusF-del](https://github.com/MatheusF-del) |
-| Mario Felipe Bastos Noleto | [@Mario-FelipeBN](https://github.com/Mario-FelipeBN) |
-
----
 
 # 📖 Documentação Completa
 
