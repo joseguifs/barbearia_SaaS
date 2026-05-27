@@ -13,49 +13,108 @@ class SchedulingReviewController
 
     public function pending()
     {
-        $agendamentos = $this->reviewModel->allPending();
-        $message = $_GET['message'] ?? null;
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if (empty($_SESSION['id_barbeiro'])) {
+            header('Location: index.php?action=barber_login');
+            exit;
+        }
+
+        $idBarbeiro = (int) $_SESSION['id_barbeiro'];
+
+        $agendamentos = $this->reviewModel->getPendingByBarber($idBarbeiro);
 
         require_once __DIR__ . '/../views/admin/acceptOrRefuse.php';
     }
 
     public function accept()
     {
-        $idAgendamento = $_POST['id_agendamento'] ?? null;
-
-        if (empty($idAgendamento)) {
-            echo "Agendamento não informado.";
-            return;
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
         }
 
-        try {
-            $this->reviewModel->accept((int)$idAgendamento);
-
-            header('Location: index.php?action=review_pending&message=accepted');
+        if (empty($_SESSION['id_barbeiro'])) {
+            header('Location: index.php?action=barber_login');
             exit;
-
-        } catch (Exception $e) {
-            echo "Erro ao aceitar agendamento: " . $e->getMessage();
         }
+
+        $idAgendamento = (int) ($_POST['id_agendamento'] ?? 0);
+        $idBarbeiro = (int) $_SESSION['id_barbeiro'];
+
+        if ($idAgendamento <= 0) {
+            header('Location: index.php?action=review_pending&message=invalid');
+            exit;
+        }
+
+        $success = $this->reviewModel->acceptByBarber($idAgendamento, $idBarbeiro);
+
+        if (!$success) {
+            header('Location: index.php?action=review_pending&message=error');
+            exit;
+        }
+
+        header('Location: index.php?action=review_pending&message=accepted');
+        exit;
     }
 
     public function reject()
     {
-        $idAgendamento = $_POST['id_agendamento'] ?? null;
-
-        if (empty($idAgendamento)) {
-            echo "Agendamento não informado.";
-            return;
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
         }
 
-        try {
-            $this->reviewModel->reject((int)$idAgendamento);
-
-            header('Location: index.php?action=review_pending&message=rejected');
+        if (empty($_SESSION['id_barbeiro'])) {
+            header('Location: index.php?action=barber_login');
             exit;
-
-        } catch (Exception $e) {
-            echo "Erro ao recusar agendamento: " . $e->getMessage();
         }
+
+        $idAgendamento = (int) ($_POST['id_agendamento'] ?? 0);
+        $idBarbeiro = (int) $_SESSION['id_barbeiro'];
+
+        if ($idAgendamento <= 0) {
+            header('Location: index.php?action=review_pending&message=invalid');
+            exit;
+        }
+
+        $success = $this->reviewModel->rejectByBarber($idAgendamento, $idBarbeiro);
+
+        if (!$success) {
+            header('Location: index.php?action=review_pending&message=error');
+            exit;
+        }
+
+        header('Location: index.php?action=review_pending&message=rejected');
+        exit;
+    }
+
+    public function show()
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if (empty($_SESSION['id_barbeiro'])) {
+            header('Location: index.php?action=barber_login');
+            exit;
+        }
+
+        $idAgendamento = (int) ($_GET['id'] ?? 0);
+        $idBarbeiro = (int) $_SESSION['id_barbeiro'];
+
+        if ($idAgendamento <= 0) {
+            header('Location: index.php?action=review_pending&message=invalid');
+            exit;
+        }
+
+        $agendamento = $this->reviewModel->findPendingByIdAndBarber($idAgendamento, $idBarbeiro);
+
+        if (!$agendamento) {
+            header('Location: index.php?action=review_pending&message=not_found');
+            exit;
+        }
+
+        require_once __DIR__ . '/../views/admin/schedulingDetails.php';
     }
 }

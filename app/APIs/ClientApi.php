@@ -55,15 +55,15 @@ class ClientApiController
                     }
                     // Hash da senha por segurança
                     $senhaHash = password_hash($input['senha'], PASSWORD_DEFAULT);
-                    $this->model->create($input['nome'], $input['telefone'] ?? '', $input['email'] ?? null, $senhaHash);
-                    $this->response(true, "Cliente cadastrado com sucesso", null, 201);
+                    $data = $this->model->create($input['nome'], $input['telefone'] ?? '', $input['email'] ?? null, $senhaHash);
+                    $this->response(true, "Cliente cadastrado com sucesso", $data, 201);
                     break;
 
                 case 'PUT':
                     if (!$id) $this->response(false, "ID necessário", null, 400);
                     $input = json_decode(file_get_contents('php://input'), true);
-                    $this->model->update($id, $input['nome'], $input['telefone'], $input['email']);
-                    $this->response(true, "Cliente atualizado", null);
+                    $data = $this->model->update($id, $input['nome'], $input['telefone'], $input['email']);
+                    $this->response(true, "Cliente atualizado", $data, null);
                     break;
 
                 case 'DELETE':
@@ -80,4 +80,3 @@ class ClientApiController
         }
     }
 }
-

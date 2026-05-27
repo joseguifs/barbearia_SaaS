@@ -151,7 +151,12 @@ class Scheduling
     public function create($dados, array $servicos)
     {
         try {
-            $this->pdo->beginTransaction();
+            $iniciouTransacao = false;
+
+            if (!$this->pdo->inTransaction()) {
+                $this->pdo->beginTransaction();
+                $iniciouTransacao = true;
+            }
 
             $sql = "INSERT INTO agendamento
                     (id_cliente, id_barbeiro, data_hora, descricao, status)
@@ -162,29 +167,43 @@ class Scheduling
             $stmt->bindValue(':id_cliente', $dados['id_cliente'], PDO::PARAM_INT);
             $stmt->bindValue(':id_barbeiro', $dados['id_barbeiro'], PDO::PARAM_INT);
             $stmt->bindValue(':data_hora', $dados['data_hora']);
-            $stmt->bindValue(':descricao', $dados['descricao']);
-            $stmt->bindValue(':status', $dados['status']);
+            $stmt->bindValue(':descricao', $dados['descricao'] ?? null);
+            $stmt->bindValue(':status', $dados['status'] ?? 'pendente');
             $stmt->execute();
 
-            $idAgendamento = $this->pdo->lastInsertId();
+            $idAgendamento = (int)$this->pdo->lastInsertId();
 
-            $sqlServico = "INSERT INTO agendamento_servico
-                           (id_agendamento, id_servico)
-                           VALUES
-                           (:id_agendamento, :id_servico)";
+            if (!empty($servicos)) {
+                $sqlServico = "INSERT INTO agendamento_servico
+                               (id_agendamento, id_servico)
+                               VALUES
+                               (:id_agendamento, :id_servico)";
 
-            $stmtServico = $this->pdo->prepare($sqlServico);
+                $stmtServico = $this->pdo->prepare($sqlServico);
 
-            foreach ($servicos as $idServico) {
-                $stmtServico->bindValue(':id_agendamento', $idAgendamento, PDO::PARAM_INT);
-                $stmtServico->bindValue(':id_servico', $idServico, PDO::PARAM_INT);
-                $stmtServico->execute();
+                foreach ($servicos as $idServico) {
+                    $idServico = (int)$idServico;
+
+                    if ($idServico <= 0) {
+                        continue;
+                    }
+
+                    $stmtServico->bindValue(':id_agendamento', $idAgendamento, PDO::PARAM_INT);
+                    $stmtServico->bindValue(':id_servico', $idServico, PDO::PARAM_INT);
+                    $stmtServico->execute();
+                }
             }
 
-            $this->pdo->commit();
+            if ($iniciouTransacao) {
+                $this->pdo->commit();
+            }
+
             return $idAgendamento;
         } catch (Exception $e) {
-            $this->pdo->rollBack();
+            if (isset($iniciouTransacao) && $iniciouTransacao && $this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+
             throw $e;
         }
     }
@@ -233,6 +252,7 @@ class Scheduling
                     ON a.id_barbeiro = b.id_barbeiro
                 WHERE a.id_cliente = :id_cliente
                 AND a.status IN ('pendente', 'agendado')
+                AND a.data_hora >= NOW()
                 ORDER BY a.data_hora ASC";
 
         $stmt = $this->pdo->prepare($sql);
@@ -333,6 +353,7 @@ class Scheduling
                     ON b.id_barbeiro = a.id_barbeiro
                 WHERE a.id_cliente = :id_cliente
                   AND a.data_hora >= NOW()
+                  AND a.status IN ('pendente', 'agendado')
                 ORDER BY a.data_hora ASC
                 LIMIT 1";
 
@@ -353,9 +374,13 @@ class Scheduling
             $nomesServicos[] = $servico['nome'];
         }
 
+        $agendamento['servicos'] = $servicos;
+
         $agendamento['servicos_texto'] = !empty($nomesServicos)
             ? implode(' + ', $nomesServicos)
             : 'Serviço não informado';
+
+        $agendamento['valor_total'] = $this->getTotalValueBySchedulingId($agendamento['id_agendamento']);
 
         return $agendamento;
     }
@@ -373,63 +398,180 @@ class Scheduling
         return $stmt->execute();
     }
 
-
-    public function hasScheduleConflict($idBarbeiro, $dataHora, $idAgendamentoIgnorar = null)
+    public function getDailyAgenda($idBarbeiro, $data)
     {
-        $sql = "SELECT COUNT(*) AS total
-                FROM agendamento
-                WHERE id_barbeiro = :id_barbeiro
-                AND data_hora = :data_hora
-                AND status IN ('pendente', 'agendado')";
-
-        if ($idAgendamentoIgnorar !== null) {
-            $sql .= " AND id_agendamento != :id_agendamento";
-        }
+        $sql = "SELECT 
+                    a.id_agendamento,
+                    a.data_hora,
+                    a.status,
+                    a.descricao,
+                    c.nome AS cliente_nome,
+                    c.telefone AS cliente_telefone
+                FROM agendamento a
+                INNER JOIN cliente c ON a.id_cliente = c.id_cliente
+                WHERE a.id_barbeiro = :id_barbeiro
+                  AND DATE(a.data_hora) = :data
+                  AND a.status IN ('pendente', 'agendado')
+                ORDER BY a.data_hora ASC";
 
         $stmt = $this->pdo->prepare($sql);
-
         $stmt->bindValue(':id_barbeiro', $idBarbeiro, PDO::PARAM_INT);
-        $stmt->bindValue(':data_hora', $dataHora);
-
-        if ($idAgendamentoIgnorar !== null) {
-            $stmt->bindValue(':id_agendamento', $idAgendamentoIgnorar, PDO::PARAM_INT);
-        }
-
+        $stmt->bindValue(':data', $data);
         $stmt->execute();
 
-        $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+        $agendamentos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return (int)$resultado['total'] > 0;
+        foreach ($agendamentos as &$agendamento) {
+            $servicos = $this->getServicesBySchedulingId($agendamento['id_agendamento']);
+            $nomesServicos = array_column($servicos, 'nome');
+
+            $agendamento['servicos'] = $servicos;
+            $agendamento['servicos_texto'] = !empty($nomesServicos)
+                ? implode(' + ', $nomesServicos)
+                : 'Serviço não informado';
+
+            $agendamento['valor_total'] = $this->getTotalValueBySchedulingId($agendamento['id_agendamento']);
+        }
+
+        return $agendamentos;
+    }
+
+    public function hasScheduleConflict($idBarbeiro, $dataHora, $idAgendamentoIgnorar = null, array $servicos = [])
+    {
+        $dataTimestamp = strtotime($dataHora);
+
+        if ($dataTimestamp === false) {
+            return true;
+        }
+
+        $data = date('Y-m-d', $dataTimestamp);
+
+        $duracaoNovoAgendamento = !empty($servicos)
+            ? $this->getTotalDurationByServices($servicos)
+            : 30;
+
+        if ($duracaoNovoAgendamento <= 0) {
+            $duracaoNovoAgendamento = 30;
+        }
+
+        $inicioNovo = new DateTime($dataHora);
+        $fimNovo = clone $inicioNovo;
+        $fimNovo->modify("+{$duracaoNovoAgendamento} minutes");
+
+        $agendamentosExistentes = $this->getAppointmentsByBarberAndDate(
+            $idBarbeiro,
+            $data,
+            $idAgendamentoIgnorar
+        );
+
+        foreach ($agendamentosExistentes as $agendamento) {
+            $inicioExistente = new DateTime($agendamento['data_hora']);
+            $duracaoExistente = (int)($agendamento['duracao_total'] ?? 30);
+
+            if ($duracaoExistente <= 0) {
+                $duracaoExistente = 30;
+            }
+
+            $fimExistente = clone $inicioExistente;
+            $fimExistente->modify("+{$duracaoExistente} minutes");
+
+            $sobrepoe = $inicioNovo < $fimExistente && $fimNovo > $inicioExistente;
+
+            if ($sobrepoe) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 
     public function deleteByIdAndClient($idAgendamento, $idCliente)
     {
-        $sql = "DELETE FROM agendamento
-                WHERE id_agendamento = :id_agendamento
-                AND id_cliente = :id_cliente";
+        try {
+            $iniciouTransacao = false;
 
-        $stmt = $this->pdo->prepare($sql);
+            if (!$this->pdo->inTransaction()) {
+                $this->pdo->beginTransaction();
+                $iniciouTransacao = true;
+            }
 
-        $stmt->bindValue(':id_agendamento', $idAgendamento, PDO::PARAM_INT);
-        $stmt->bindValue(':id_cliente', $idCliente, PDO::PARAM_INT);
+            $sqlDeleteServicos = "DELETE ags
+                                  FROM agendamento_servico ags
+                                  INNER JOIN agendamento a
+                                      ON a.id_agendamento = ags.id_agendamento
+                                  WHERE ags.id_agendamento = :id_agendamento
+                                  AND a.id_cliente = :id_cliente";
 
-        $stmt->execute();
+            $stmtServicos = $this->pdo->prepare($sqlDeleteServicos);
+            $stmtServicos->bindValue(':id_agendamento', $idAgendamento, PDO::PARAM_INT);
+            $stmtServicos->bindValue(':id_cliente', $idCliente, PDO::PARAM_INT);
+            $stmtServicos->execute();
 
-        return $stmt->rowCount() > 0;
+            $sql = "DELETE FROM agendamento
+                    WHERE id_agendamento = :id_agendamento
+                    AND id_cliente = :id_cliente";
+
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindValue(':id_agendamento', $idAgendamento, PDO::PARAM_INT);
+            $stmt->bindValue(':id_cliente', $idCliente, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $apagou = $stmt->rowCount() > 0;
+
+            if ($iniciouTransacao) {
+                $this->pdo->commit();
+            }
+
+            return $apagou;
+        } catch (Exception $e) {
+            if (isset($iniciouTransacao) && $iniciouTransacao && $this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+
+            throw $e;
+        }
     }
 
 
     public function deleteById($idAgendamento)
     {
-        $sql = "DELETE FROM agendamento
-                WHERE id_agendamento = :id_agendamento";
+        try {
+            $iniciouTransacao = false;
 
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->bindValue(':id_agendamento', $idAgendamento, PDO::PARAM_INT);
-        $stmt->execute();
+            if (!$this->pdo->inTransaction()) {
+                $this->pdo->beginTransaction();
+                $iniciouTransacao = true;
+            }
 
-        return $stmt->rowCount() > 0;
+            $sqlServicos = "DELETE FROM agendamento_servico
+                            WHERE id_agendamento = :id_agendamento";
+
+            $stmtServicos = $this->pdo->prepare($sqlServicos);
+            $stmtServicos->bindValue(':id_agendamento', $idAgendamento, PDO::PARAM_INT);
+            $stmtServicos->execute();
+
+            $sql = "DELETE FROM agendamento
+                    WHERE id_agendamento = :id_agendamento";
+
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindValue(':id_agendamento', $idAgendamento, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $apagou = $stmt->rowCount() > 0;
+
+            if ($iniciouTransacao) {
+                $this->pdo->commit();
+            }
+
+            return $apagou;
+        } catch (Exception $e) {
+            if (isset($iniciouTransacao) && $iniciouTransacao && $this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+
+            throw $e;
+        }
     }
 
     public function cancelByIdAndClient($idAgendamento, $idCliente)
@@ -452,27 +594,51 @@ class Scheduling
 
     public function updateServicesBySchedulingId($idAgendamento, array $servicos)
     {
-        $sqlDelete = "DELETE FROM agendamento_servico
-                    WHERE id_agendamento = :id_agendamento";
+        try {
+            $iniciouTransacao = false;
 
-        $stmtDelete = $this->pdo->prepare($sqlDelete);
-        $stmtDelete->bindValue(':id_agendamento', $idAgendamento, PDO::PARAM_INT);
-        $stmtDelete->execute();
+            if (!$this->pdo->inTransaction()) {
+                $this->pdo->beginTransaction();
+                $iniciouTransacao = true;
+            }
 
-        $sqlInsert = "INSERT INTO agendamento_servico 
-                        (id_agendamento, id_servico)
-                    VALUES 
-                        (:id_agendamento, :id_servico)";
+            $sqlDelete = "DELETE FROM agendamento_servico
+                          WHERE id_agendamento = :id_agendamento";
 
-        $stmtInsert = $this->pdo->prepare($sqlInsert);
+            $stmtDelete = $this->pdo->prepare($sqlDelete);
+            $stmtDelete->bindValue(':id_agendamento', $idAgendamento, PDO::PARAM_INT);
+            $stmtDelete->execute();
 
-        foreach ($servicos as $idServico) {
-            $stmtInsert->bindValue(':id_agendamento', $idAgendamento, PDO::PARAM_INT);
-            $stmtInsert->bindValue(':id_servico', $idServico, PDO::PARAM_INT);
-            $stmtInsert->execute();
+            $servicos = array_map('intval', $servicos);
+            $servicos = array_values(array_filter($servicos));
+
+            if (!empty($servicos)) {
+                $sqlInsert = "INSERT INTO agendamento_servico 
+                              (id_agendamento, id_servico)
+                              VALUES 
+                              (:id_agendamento, :id_servico)";
+
+                $stmtInsert = $this->pdo->prepare($sqlInsert);
+
+                foreach ($servicos as $idServico) {
+                    $stmtInsert->bindValue(':id_agendamento', $idAgendamento, PDO::PARAM_INT);
+                    $stmtInsert->bindValue(':id_servico', $idServico, PDO::PARAM_INT);
+                    $stmtInsert->execute();
+                }
+            }
+
+            if ($iniciouTransacao) {
+                $this->pdo->commit();
+            }
+
+            return true;
+        } catch (Exception $e) {
+            if (isset($iniciouTransacao) && $iniciouTransacao && $this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+
+            throw $e;
         }
-
-        return true;
     }
 
 
@@ -532,42 +698,79 @@ class Scheduling
 
 
 
-    public function getAppointmentsByBarberAndDate($idBarbeiro, $data, $idAgendamentoIgnorar = null)
-    {
-        $sql = "SELECT 
-                    a.id_agendamento,
-                    a.data_hora,
-                    COALESCE(SUM(s.duracao), 30) AS duracao_total
-                FROM agendamento a
-                LEFT JOIN agendamento_servico ags
-                    ON a.id_agendamento = ags.id_agendamento
-                LEFT JOIN servico s
-                    ON ags.id_servico = s.id_servico
-                WHERE a.id_barbeiro = :id_barbeiro
-                AND DATE(a.data_hora) = :data
-                AND a.status IN ('pendente', 'agendado')
-        ";
+    public function getAppointmentsByBarberAndDate(
+    $idBarbeiro,
+    $data,
+    $idAgendamentoIgnorar = null
+) {
+    $sql = "SELECT 
+                a.id_agendamento,
+                a.data_hora,
+                a.status,
+                a.descricao,
+                c.nome AS cliente_nome,
+                c.telefone AS cliente_telefone,
+                COALESCE(SUM(s.duracao), 30) AS duracao_total
+            FROM agendamento a
+            INNER JOIN cliente c 
+                ON a.id_cliente = c.id_cliente
+            LEFT JOIN agendamento_servico ags
+                ON a.id_agendamento = ags.id_agendamento
+            LEFT JOIN servico s
+                ON ags.id_servico = s.id_servico
+            WHERE a.id_barbeiro = :id_barbeiro
+              AND DATE(a.data_hora) = :data
+              AND a.status IN ('pendente', 'agendado')";
 
-        if ($idAgendamentoIgnorar !== null) {
-            $sql .= " AND a.id_agendamento != :id_agendamento";
-        }
-
-        $sql .= " GROUP BY a.id_agendamento, a.data_hora
-                ORDER BY a.data_hora ASC";
-
-        $stmt = $this->pdo->prepare($sql);
-
-        $stmt->bindValue(':id_barbeiro', $idBarbeiro, PDO::PARAM_INT);
-        $stmt->bindValue(':data', $data);
-
-        if ($idAgendamentoIgnorar !== null) {
-            $stmt->bindValue(':id_agendamento', $idAgendamentoIgnorar, PDO::PARAM_INT);
-        }
-
-        $stmt->execute();
-
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if ($idAgendamentoIgnorar !== null) {
+        $sql .= " AND a.id_agendamento != :id_agendamento";
     }
+
+    $sql .= " 
+            GROUP BY 
+                a.id_agendamento,
+                a.data_hora,
+                a.status,
+                a.descricao,
+                c.nome,
+                c.telefone
+            ORDER BY a.data_hora ASC";
+
+    $stmt = $this->pdo->prepare($sql);
+
+    $stmt->bindValue(':id_barbeiro', $idBarbeiro, PDO::PARAM_INT);
+    $stmt->bindValue(':data', $data);
+
+    if ($idAgendamentoIgnorar !== null) {
+        $stmt->bindValue(':id_agendamento', $idAgendamentoIgnorar, PDO::PARAM_INT);
+    }
+
+    $stmt->execute();
+
+    $agendamentos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    foreach ($agendamentos as &$agendamento) {
+        $servicos = $this->getServicesBySchedulingId(
+            $agendamento['id_agendamento']
+        );
+
+        $nomesServicos = array_column($servicos, 'nome');
+
+        $agendamento['servicos'] = $servicos;
+
+        $agendamento['servicos_texto'] = !empty($nomesServicos)
+            ? implode(' + ', $nomesServicos)
+            : 'Serviço não informado';
+
+        $agendamento['duracao_total'] = (int)$agendamento['duracao_total'];
+
+        if ($agendamento['duracao_total'] <= 0) {
+            $agendamento['duracao_total'] = 30;
+        }
+    }
+
+    return $agendamentos;
+}
 
 
 
