@@ -1,0 +1,546 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg: #0d0d0d;
+    --bg-soft: rgba(18, 18, 18, 0.82);
+    --bg-card: rgba(24, 24, 24, 0.78);
+    --gold: #c59d5f;
+    --gold-dark: #8b5e34;
+    --text: #fff7ec;
+    --muted: rgba(255, 247, 236, 0.68);
+    --line: rgba(255, 255, 255, 0.09);
+    --line-gold: rgba(197, 157, 95, 0.28);
+    --shadow: 0 24px 60px rgba(0, 0, 0, 0.34);
+}
+
+body {
+    min-height: 100vh;
+    color: var(--text);
+    font-family: Arial, Helvetica, sans-serif;
+    background:
+        radial-gradient(circle at top left, rgba(197, 157, 95, 0.16), transparent 34%),
+        linear-gradient(rgba(6, 6, 6, 0.82), rgba(9, 9, 9, 0.95)),
+        #0f0f0f;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(120deg, rgba(197, 157, 95, 0.08), transparent 40%, rgba(255,255,255,0.03));
+    z-index: -1;
+}
+
+.topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    min-height: 82px;
+    padding: 0 7%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    background: rgba(8, 8, 8, 0.66);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(197, 157, 95, 0.18);
+    z-index: 1000;
+}
+
+.logo {
+    color: var(--gold);
+    text-decoration: none;
+    font-size: 1.45rem;
+    font-weight: 900;
+    letter-spacing: 2.4px;
+}
+
+.nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.nav a {
+    color: rgba(255, 247, 236, 0.74);
+    text-decoration: none;
+    padding: 10px 16px;
+    border-radius: 999px;
+    font-size: 0.95rem;
+    font-weight: 800;
+    transition: 0.22s ease;
+}
+
+.nav a:hover,
+.nav a.active {
+    color: #fff;
+    background: rgba(197, 157, 95, 0.16);
+}
+
+.nav .logout {
+    border: 1px solid rgba(197, 157, 95, 0.35);
+}
+
+.profile-page {
+    width: min(1160px, 92%);
+    margin: 0 auto;
+    padding: 132px 0 72px;
+}
+
+.hero-profile {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 24px;
+    align-items: stretch;
+    margin-bottom: 24px;
+}
+
+.hero-copy,
+.hero-date-card,
+.profile-card,
+.summary-card,
+.agenda-panel,
+.appointment-card,
+.empty-state {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 28px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(14px);
+}
+
+.hero-copy {
+    padding: 34px;
+}
+
+.hero-copy span,
+.eyebrow,
+.hero-date-card small,
+.summary-card span,
+.info-box span,
+.description-box span {
+    display: inline-block;
+    color: var(--gold);
+    font-size: 0.78rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+}
+
+.hero-copy h1 {
+    margin: 10px 0 10px;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    line-height: 1.05;
+}
+
+.hero-copy p {
+    max-width: 720px;
+    color: var(--muted);
+    line-height: 1.65;
+}
+
+.hero-date-card {
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-color: var(--line-gold);
+}
+
+.hero-date-card strong {
+    margin-top: 8px;
+    color: var(--text);
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1.6fr repeat(2, minmax(150px, 1fr));
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.profile-card {
+    grid-row: span 2;
+    padding: 28px;
+    display: grid;
+    grid-template-columns: 112px 1fr;
+    gap: 22px;
+    align-items: center;
+}
+
+.avatar {
+    width: 112px;
+    height: 112px;
+    border-radius: 30px;
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #111;
+    font-size: 3rem;
+    font-weight: 900;
+    box-shadow: 0 18px 35px rgba(197, 157, 95, 0.22);
+}
+
+.profile-info h2 {
+    margin: 8px 0 8px;
+    font-size: 2rem;
+}
+
+.profile-info p {
+    color: var(--muted);
+    line-height: 1.55;
+}
+
+.barber-meta {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.barber-meta div,
+.info-box,
+.description-box {
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.045);
+    border: 1px solid rgba(255, 255, 255, 0.075);
+    border-radius: 18px;
+}
+
+.barber-meta span {
+    display: block;
+    margin-bottom: 6px;
+    color: rgba(255, 247, 236, 0.54);
+    font-size: 0.8rem;
+}
+
+.barber-meta strong {
+    color: var(--text);
+    word-break: break-word;
+}
+
+.summary-card {
+    min-height: 142px;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    transition: 0.22s ease;
+}
+
+.summary-card:hover,
+.appointment-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(197, 157, 95, 0.36);
+}
+
+.summary-card strong {
+    margin: 8px 0 5px;
+    font-size: 2.2rem;
+    line-height: 1;
+}
+
+.summary-card small {
+    color: var(--muted);
+    line-height: 1.35;
+}
+
+.highlight-card {
+    border-color: rgba(197, 157, 95, 0.34);
+    background: linear-gradient(145deg, rgba(197, 157, 95, 0.18), rgba(24, 24, 24, 0.78));
+}
+
+.money-card strong {
+    color: var(--gold);
+    font-size: 1.75rem;
+}
+
+.agenda-panel {
+    padding: 28px;
+}
+
+.section-header {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 22px;
+}
+
+.section-header h2 {
+    margin-top: 8px;
+    font-size: 2rem;
+}
+
+.next-badge {
+    color: #111;
+    background: var(--gold);
+    padding: 10px 16px;
+    border-radius: 999px;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+.empty-state {
+    padding: 54px 24px;
+    text-align: center;
+    background: rgba(255,255,255,0.035);
+    box-shadow: none;
+}
+
+.empty-icon {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 24px;
+    background: rgba(197, 157, 95, 0.13);
+    font-size: 2.2rem;
+}
+
+.empty-state h3 {
+    margin-bottom: 8px;
+    font-size: 1.45rem;
+}
+
+.empty-state p {
+    color: var(--muted);
+}
+
+.agenda-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.appointment-card {
+    padding: 18px;
+    display: grid;
+    grid-template-columns: 112px 1fr;
+    gap: 18px;
+    background: rgba(17, 17, 17, 0.72);
+    transition: 0.22s ease;
+}
+
+.time-column {
+    min-height: 100%;
+    padding: 16px;
+    border-radius: 22px;
+    background: rgba(197, 157, 95, 0.12);
+    border: 1px solid rgba(197, 157, 95, 0.24);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.time-column strong {
+    color: var(--gold);
+    font-size: 1.8rem;
+    line-height: 1;
+}
+
+.time-column span {
+    margin-top: 7px;
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.appointment-body {
+    min-width: 0;
+}
+
+.appointment-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.appointment-header h3 {
+    margin-bottom: 5px;
+    font-size: 1.35rem;
+}
+
+.appointment-header p {
+    color: var(--muted);
+    line-height: 1.4;
+}
+
+.status {
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.75px;
+    white-space: nowrap;
+}
+
+.status-agendado {
+    color: #b9f6ca;
+    background: rgba(46, 204, 113, 0.14);
+    border: 1px solid rgba(46, 204, 113, 0.28);
+}
+
+.status-pendente {
+    color: #ffe0a6;
+    background: rgba(243, 156, 18, 0.14);
+    border: 1px solid rgba(243, 156, 18, 0.28);
+}
+
+.status-cancelado {
+    color: #ffc5c5;
+    background: rgba(231, 76, 60, 0.14);
+    border: 1px solid rgba(231, 76, 60, 0.28);
+}
+
+.status-default {
+    color: var(--muted);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.appointment-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr 160px;
+    gap: 12px;
+}
+
+.info-box span,
+.description-box span {
+    margin-bottom: 7px;
+    font-size: 0.72rem;
+}
+
+.info-box strong,
+.info-box a {
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 800;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.info-box a:hover {
+    color: var(--gold);
+}
+
+.price-box strong {
+    color: var(--gold);
+}
+
+.description-box {
+    margin-top: 12px;
+}
+
+.description-box p {
+    color: var(--muted);
+    line-height: 1.55;
+}
+
+@media (max-width: 980px) {
+    .hero-profile,
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-card {
+        grid-row: auto;
+    }
+
+    .appointment-info-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 760px) {
+    .topbar {
+        min-height: auto;
+        padding: 16px;
+        flex-direction: column;
+    }
+
+    .profile-page {
+        width: min(100% - 32px, 1160px);
+        padding-top: 150px;
+    }
+
+    .hero-copy,
+    .hero-date-card,
+    .profile-card,
+    .summary-card,
+    .agenda-panel,
+    .appointment-card {
+        border-radius: 22px;
+    }
+
+    .profile-card,
+    .appointment-card {
+        grid-template-columns: 1fr;
+    }
+
+    .avatar {
+        width: 92px;
+        height: 92px;
+        border-radius: 24px;
+        font-size: 2.4rem;
+    }
+
+    .time-column {
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    .appointment-header,
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .next-badge {
+        white-space: normal;
+    }
+}
+
+@media (max-width: 520px) {
+    .nav {
+        justify-content: center;
+    }
+
+    .nav a {
+        padding: 9px 12px;
+        font-size: 0.88rem;
+    }
+
+    .hero-copy,
+    .agenda-panel,
+    .profile-card {
+        padding: 22px;
+    }
+
+    .barber-meta {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-date-card strong,
+    .section-header h2,
+    .profile-info h2 {
+        font-size: 1.6rem;
+    }
+}
