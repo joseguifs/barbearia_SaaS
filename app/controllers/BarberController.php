@@ -29,7 +29,10 @@ class BarberController
 
         // Busca a agenda do dia atual
         $hoje = date('Y-m-d');
-        $agendamentos = $this->schedulingModel->getDailyAgenda($idBarbeiro, $hoje);
+        $hojeFormatado = date('d/m/Y');
+
+         $agendamentos = $this->schedulingModel->getDailyAgenda($idBarbeiro, $hoje);
+
 
         // Renderiza a view
         require_once __DIR__ . '/../views/barber/profile.php';
