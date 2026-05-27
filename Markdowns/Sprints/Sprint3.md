@@ -30,7 +30,7 @@ Essa funcionalidade visa permitir o desenvolvimento e a disponibilização da AP
 **Descrição:**  
 Essa funcionalidade visa permitir o desenvolvimento e a disponibilização da integração da API de barbeiro, de forma que possamos realizar operações básicas de CRUD sobre essa entidade, além do desenvolvimento de testes unitários, visando testar o comportamento e a execução das funcionalidades do sistema.
 
-**Desenvolvida por:** Matheus Felipe
+**Desenvolvida por:** Mario Felipe
 
 ---
 
