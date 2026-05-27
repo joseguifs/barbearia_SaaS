@@ -1,208 +1,220 @@
 <?php
 if (!function_exists('e')) {
-    function e($valor) {
+    function e($valor)
+    {
         return htmlspecialchars($valor ?? '', ENT_QUOTES, 'UTF-8');
     }
 }
+
+function statusClass($status)
+{
+    $status = strtolower((string) $status);
+
+    return match ($status) {
+        'agendado' => 'status-agendado',
+        'pendente' => 'status-pendente',
+        'cancelado' => 'status-cancelado',
+        default => 'status-default',
+    };
+}
+
+function statusTexto($status)
+{
+    $status = strtolower((string) $status);
+
+    return match ($status) {
+        'agendado' => 'Agendado',
+        'pendente' => 'Pendente',
+        'cancelado' => 'Cancelado',
+        default => ucfirst($status),
+    };
+}
+
+function formatarHorario($dataHora)
+{
+    if (empty($dataHora)) {
+        return '--:--';
+    }
+
+    return date('H:i', strtotime($dataHora));
+}
+
+function formatarValor($valor)
+{
+    return 'R$ ' . number_format((float) $valor, 2, ',', '.');
+}
+
+$agendamentos = $agendamentos ?? [];
+$nomeBarbeiro = $dadosBarbeiro['nome'] ?? 'Barbeiro';
+$primeiraLetra = strtoupper(substr($nomeBarbeiro, 0, 1));
+$totalAgendamentos = count($agendamentos);
+$totalPendente = count(array_filter($agendamentos, fn($item) => strtolower((string) ($item['status'] ?? '')) === 'pendente'));
+$totalAgendado = count(array_filter($agendamentos, fn($item) => strtolower((string) ($item['status'] ?? '')) === 'agendado'));
+$valorTotalDia = array_reduce($agendamentos, fn($total, $item) => $total + (float) ($item['valor_total'] ?? 0), 0);
+$proximoAgendamento = $agendamentos[0] ?? null;
 ?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>BarberTime - Perfil do Barbeiro</title>
+    <title>Perfil do Barbeiro - BarberTime</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --bg: #050505;
-            --panel: #0b0b0d;
-            --gold: #b98c54;
-            --gold-soft: #d5a86d;
-            --border: #b98c54;
-            --text: #c19762;
-            --white-soft: #e9e9e9;
-        }
-
-        body {
-            min-height: 100vh;
-            background: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('/BARBEARIA_SAAS/public/assets/images/backgroundbarbearia.jpg') center center / cover fixed;
-            font-family: 'Oswald', sans-serif;
-            display: flex;
-            justify-content: center;
-            padding: 40px 20px;
-        }
-
-        .profile-container {
-            width: 100%;
-            max-width: 800px;
-            background: rgba(10, 10, 12, 0.95);
-            border: 2px solid rgba(185, 140, 84, 0.45);
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-        }
-
-        .header {
-            background: #080808;
-            padding: 25px 30px;
-            border-bottom: 2px solid var(--border);
-            text-align: center;
-        }
-
-        .header h1 {
-            color: var(--gold);
-            font-size: 2.2rem;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        .header p {
-            color: var(--text);
-            font-size: 1.1rem;
-            margin-top: 5px;
-        }
-
-        .agenda-content {
-            padding: 30px;
-        }
-
-        .agenda-title {
-            color: var(--white-soft);
-            font-size: 1.4rem;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid rgba(185, 140, 84, 0.2);
-            padding-bottom: 10px;
-        }
-
-        .agenda-title span {
-            color: var(--gold);
-        }
-
-        .card-agendamento {
-            background: rgba(255, 255, 255, 0.03);
-            border-left: 4px solid var(--gold);
-            padding: 20px;
-            margin-bottom: 15px;
-            border-radius: 4px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: 0.3s;
-        }
-
-        .card-agendamento:hover {
-            background: rgba(185, 140, 84, 0.1);
-        }
-
-        .horario {
-            font-size: 1.8rem;
-            color: var(--gold-soft);
-            font-weight: 600;
-            min-width: 90px;
-        }
-
-        .info-cliente {
-            flex-grow: 1;
-            margin-left: 20px;
-        }
-
-        .info-cliente h3 {
-            color: var(--white-soft);
-            font-size: 1.3rem;
-            margin-bottom: 4px;
-            letter-spacing: 0.5px;
-        }
-
-        .info-cliente p {
-            color: var(--text);
-            font-size: 0.95rem;
-            font-family: Arial, sans-serif;
-        }
-
-        .status-badge {
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-size: 0.85rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .status-pendente { background: rgba(185, 140, 84, 0.2); color: var(--gold); border: 1px solid var(--gold); }
-        .status-agendado { background: rgba(46, 125, 50, 0.2); color: #81c784; border: 1px solid #81c784; }
-        .status-concluido { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid #fff; }
-        .status-cancelado { background: rgba(211, 47, 47, 0.2); color: #e57373; border: 1px solid #e57373; }
-
-        .empty-message {
-            text-align: center;
-            color: var(--text);
-            padding: 40px 0;
-            font-size: 1.2rem;
-        }
-
-        @media (max-width: 600px) {
-            .card-agendamento {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .info-cliente {
-                margin-left: 0;
-                margin-top: 10px;
-                margin-bottom: 15px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="/barbearia_SaaS/app/css/profile-barber.css">
 </head>
 <body>
 
-<div class="profile-container">
-    <div class="header">
-        <h1>BEM-VINDO, <?= e($dadosBarbeiro['nome']) ?></h1>
-        <p>Painel de Controle do Barbeiro</p>
-    </div>
+<header class="topbar">
+    <a class="logo" href="index.php?action=home">BARBERTIME</a>
 
-    <div class="agenda-content">
-        <div class="agenda-title">
-            Agenda do Dia
-            <span><?= date('d/m/Y') ?></span>
+    <nav class="nav" aria-label="Navegação principal">
+        <a href="index.php?action=barber_login">Início</a>
+        <a href="index.php?action=barber_profile&id=<?= e($dadosBarbeiro['id_barbeiro'] ?? '') ?>" class="active">Perfil</a>
+    </nav>
+</header>
+
+<main class="profile-page">
+    <section class="hero-profile">
+        <div class="hero-copy">
+            <span>Painel do barbeiro</span>
+            <h1>Olá, <?= e($nomeBarbeiro) ?></h1>
+            <p>Acompanhe os atendimentos do dia, veja os serviços marcados e organize sua rotina de trabalho.</p>
+        </div>
+
+        <div class="hero-date-card">
+            <small>Agenda de hoje</small>
+            <strong><?= e($hojeFormatado ?? date('d/m/Y')) ?></strong>
+        </div>
+    </section>
+
+    <section class="dashboard-grid">
+        <article class="profile-card barber-card">
+            <div class="avatar" aria-hidden="true"><?= e($primeiraLetra) ?></div>
+
+            <div class="profile-info">
+                <span class="eyebrow">Barbeiro</span>
+                <h2><?= e($nomeBarbeiro) ?></h2>
+                <p>Perfil profissional com a agenda diária de atendimentos.</p>
+
+                <div class="barber-meta">
+                    <div>
+                        <span>Status</span>
+                        <strong>Agenda ativa</strong>
+                    </div>
+                    <div>
+                        <span>Data</span>
+                        <strong><?= e($hojeFormatado ?? date('d/m/Y')) ?></strong>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="summary-card highlight-card">
+            <span>Atendimentos</span>
+            <strong><?= e($totalAgendamentos) ?></strong>
+            <small><?= $totalAgendamentos === 1 ? 'agendamento para hoje' : 'agendamentos para hoje' ?></small>
+        </article>
+
+        <article class="summary-card">
+            <span>Confirmados</span>
+            <strong><?= e($totalAgendado) ?></strong>
+            <small>com status agendado</small>
+        </article>
+
+        <article class="summary-card">
+            <span>Pendentes</span>
+            <strong><?= e($totalPendente) ?></strong>
+            <small>aguardando confirmação</small>
+        </article>
+
+        <article class="summary-card money-card">
+            <span>Total previsto</span>
+            <strong><?= e(formatarValor($valorTotalDia)) ?></strong>
+            <small>soma dos serviços do dia</small>
+        </article>
+    </section>
+
+    <section class="agenda-panel">
+        <div class="section-header">
+            <div>
+                <span class="eyebrow">Atendimentos</span>
+                <h2>Agenda do dia</h2>
+            </div>
+
+            <?php if ($proximoAgendamento): ?>
+                <div class="next-badge">
+                    Próximo: <?= e(formatarHorario($proximoAgendamento['data_hora'] ?? null)) ?>
+                </div>
+            <?php endif; ?>
         </div>
 
         <?php if (empty($agendamentos)): ?>
-            <div class="empty-message">
-                Nenhum agendamento programado para hoje.
+            <div class="empty-state">
+                <div class="empty-icon">📅</div>
+                <h3>Nenhum agendamento para hoje</h3>
+                <p>Quando houver atendimentos marcados para este barbeiro, eles aparecerão nesta área.</p>
             </div>
         <?php else: ?>
-            <?php foreach ($agendamentos as $agendamento): ?>
-                <div class="card-agendamento">
-                    <div class="horario">
-                        <?= date('H:i', strtotime($agendamento['data_hora'])) ?>
-                    </div>
-                    
-                    <div class="info-cliente">
-                        <h3><?= e($agendamento['cliente_nome']) ?></h3>
-                        <p><strong>Serviço(s):</strong> <?= e($agendamento['servicos_texto']) ?></p>
-                        <?php if(!empty($agendamento['descricao'])): ?>
-                            <p><strong>Obs:</strong> <?= e($agendamento['descricao']) ?></p>
-                        <?php endif; ?>
-                    </div>
-                    
-                    <div class="status-badge status-<?= e($agendamento['status']) ?>">
-                        <?= e($agendamento['status']) ?>
-                    </div>
-                </div>
-            <?php endforeach; ?>
+            <div class="agenda-list">
+                <?php foreach ($agendamentos as $agendamento): ?>
+                    <?php
+                        $telefone = $agendamento['cliente_telefone'] ?? '';
+                        $telefoneLimpo = preg_replace('/\D+/', '', $telefone);
+                    ?>
+
+                    <article class="appointment-card">
+                        <div class="time-column">
+                            <strong><?= e(formatarHorario($agendamento['data_hora'] ?? null)) ?></strong>
+                            <span>Horário</span>
+                        </div>
+
+                        <div class="appointment-body">
+                            <div class="appointment-header">
+                                <div>
+                                    <h3><?= e($agendamento['cliente_nome'] ?? 'Cliente não informado') ?></h3>
+                                    <p><?= e($agendamento['servicos_texto'] ?? 'Serviço não informado') ?></p>
+                                </div>
+
+                                <span class="status <?= e(statusClass($agendamento['status'] ?? '')) ?>">
+                                    <?= e(statusTexto($agendamento['status'] ?? '')) ?>
+                                </span>
+                            </div>
+
+                            <div class="appointment-info-grid">
+                                <div class="info-box">
+                                    <span>Telefone</span>
+
+                                    <?php if (!empty($telefoneLimpo)): ?>
+                                        <a href="tel:<?= e($telefoneLimpo) ?>"><?= e($telefone) ?></a>
+                                    <?php else: ?>
+                                        <strong>Não informado</strong>
+                                    <?php endif; ?>
+                                </div>
+
+                                <div class="info-box">
+                                    <span>Serviços</span>
+                                    <strong><?= e($agendamento['servicos_texto'] ?? 'Serviço não informado') ?></strong>
+                                </div>
+
+                                <div class="info-box price-box">
+                                    <span>Valor</span>
+                                    <strong><?= e(formatarValor($agendamento['valor_total'] ?? 0)) ?></strong>
+                                </div>
+                            </div>
+
+                            <?php if (!empty($agendamento['descricao'])): ?>
+                                <div class="description-box">
+                                    <span>Observação</span>
+                                    <p><?= e($agendamento['descricao']) ?></p>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </article>
+                <?php endforeach; ?>
+            </div>
         <?php endif; ?>
-    </div>
-</div>
+    </section>
+</main>
 
 </body>
 </html>
