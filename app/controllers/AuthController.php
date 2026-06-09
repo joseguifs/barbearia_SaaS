@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../models/Client.php';
+require_once __DIR__ . '/../models/Barber.php';
 require_once __DIR__ . '/../models/Scheduling.php';
 require_once __DIR__ . '/../models/User.php';
 
@@ -8,6 +9,7 @@ class AuthController
 {
     private $pdo;
     private $clientModel;
+    private $barberModel;
     private $schedulingModel;
     private $userModel;
 
@@ -15,6 +17,7 @@ class AuthController
     {
         $this->pdo = $pdo;
         $this->clientModel = new Client($pdo);
+        $this->barberModel = new Barber($pdo);
         $this->schedulingModel = new Scheduling($pdo);
         $this->userModel = new User($pdo);
     }
@@ -51,9 +54,20 @@ class AuthController
         exit;
     }
 
-    public function forgotPassword(array $errors = [], array $data = [])
+    private function getModelByRole(string $role)
     {
+        return $role === 'barber' ? $this->barberModel : $this->clientModel;
+    }
+
+    public function forgotPassword(array $errors = [], array $data = [], string $role = 'client')
+    {
+        $data['role'] = $role;
         require __DIR__ . '/../views/auth/forgot-password.php';
+    }
+
+    public function barberForgotPassword()
+    {
+        $this->forgotPassword([], ['role' => 'barber'], 'barber');
     }
 
     public function handleForgotPassword()
@@ -64,9 +78,12 @@ class AuthController
         }
 
         $email = trim($_POST['email'] ?? '');
+        $role = trim($_POST['role'] ?? 'client');
+        $role = $role === 'barber' ? 'barber' : 'client';
 
         $data = [
-            'email' => $email
+            'email' => $email,
+            'role' => $role
         ];
 
         $errors = [];
@@ -78,29 +95,27 @@ class AuthController
         }
 
         if (!empty($errors)) {
-            $this->forgotPassword($data, $errors);
+            $this->forgotPassword($data, $errors, $role);
             return;
         }
 
-        $cliente = $this->clientModel->findByEmail($email);
+        $model = $this->getModelByRole($role);
+        $account = $model->findByEmail($email);
 
-        if (!$cliente) {
+        if (!$account) {
             $errors['email'] = 'Nenhuma conta foi encontrada com este e-mail.';
-            $this->forgotPassword($data, $errors);
+            $this->forgotPassword($data, $errors, $role);
             return;
         }
 
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        $this->startSessionIfNeeded();
 
-        $_SESSION['reset_email'] = $cliente['email'];
+        $_SESSION['reset_email'] = $account['email'];
+        $_SESSION['reset_role'] = $role;
 
-       $this->startSessionIfNeeded();
+        $redirectAction = $role === 'barber' ? 'barber_reset_password_form' : 'reset_password_form';
 
-        $_SESSION['reset_email'] = $cliente['email'];
-
-        header('Location: index.php?action=reset_password_form');
+        header('Location: index.php?action=' . $redirectAction);
         exit;
     }
 
@@ -112,6 +127,8 @@ class AuthController
             header('Location: index.php?action=forgot_password');
             exit;
         }
+
+        $role = $_SESSION['reset_role'] ?? 'client';
 
         require __DIR__ . '/../views/auth/reset-password.php';
     }
@@ -161,7 +178,9 @@ class AuthController
                 'confirmar_senha' => $confirmarSenha
             ];
 
-            $apiUrl = $this->getBaseUrl() . '/index.php?action=api_auth_reset_password';
+            $role = $_SESSION['reset_role'] ?? 'client';
+            $apiAction = $role === 'barber' ? 'api_barber_reset_password' : 'api_auth_reset_password';
+            $apiUrl = $this->getBaseUrl() . '/index.php?action=' . $apiAction;
 
             $context = stream_context_create([
                 'http' => [
@@ -194,9 +213,10 @@ class AuthController
                 return;
             }
 
-            unset($_SESSION['reset_email']);
+            unset($_SESSION['reset_email'], $_SESSION['reset_role']);
 
-            header('Location: index.php?action=login');
+            $redirect = $role === 'barber' ? 'index.php?action=barber_login' : 'index.php?action=login';
+            header('Location: ' . $redirect);
             exit;
 
         } catch (Exception $e) {

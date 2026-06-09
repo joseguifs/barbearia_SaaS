@@ -205,6 +205,89 @@ class AuthApi extends BaseApi
         ]);
     }
 
+    public function barberResetPassword()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'PUT') {
+            $this->json([
+                'success' => false,
+                'message' => 'Método não permitido.'
+            ], 405);
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true);
+
+        if (!is_array($input)) {
+            $this->json([
+                'success' => false,
+                'message' => 'JSON inválido.'
+            ], 400);
+        }
+
+        $email = trim($input['email'] ?? '');
+        $senha = trim($input['senha'] ?? '');
+        $confirmarSenha = trim($input['confirmar_senha'] ?? '');
+
+        if ($email === '') {
+            $this->json([
+                'success' => false,
+                'message' => 'E-mail obrigatório.'
+            ], 422);
+        }
+
+        if ($senha === '') {
+            $this->json([
+                'success' => false,
+                'message' => 'A nova senha é obrigatória.'
+            ], 422);
+        }
+
+        if (strlen($senha) < 6) {
+            $this->json([
+                'success' => false,
+                'message' => 'A senha deve ter pelo menos 6 caracteres.'
+            ], 422);
+        }
+
+        if ($confirmarSenha === '') {
+            $this->json([
+                'success' => false,
+                'message' => 'A confirmação de senha é obrigatória.'
+            ], 422);
+        }
+
+        if ($senha !== $confirmarSenha) {
+            $this->json([
+                'success' => false,
+                'message' => 'As senhas não coincidem.'
+            ], 422);
+        }
+
+        $barbeiro = $this->barberModel->findByEmail($email);
+
+        if (!$barbeiro) {
+            $this->json([
+                'success' => false,
+                'message' => 'Usuário não encontrado.'
+            ], 404);
+        }
+
+        $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
+
+        $sucesso = $this->barberModel->updatePassword($barbeiro['id_barbeiro'], $senhaHash);
+
+        if (!$sucesso) {
+            $this->json([
+                'success' => false,
+                'message' => 'Não foi possível redefinir a senha.'
+            ], 500);
+        }
+
+        $this->json([
+            'success' => true,
+            'message' => 'Senha redefinida com sucesso.'
+        ]);
+    }
+
 
     public function loginBarber()
     {

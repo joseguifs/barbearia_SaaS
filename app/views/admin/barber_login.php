@@ -92,6 +92,10 @@
             <div class="login-footer">
                 Após o login, você será direcionado para seus agendamentos pendentes.
             </div>
+
+            <div class="login-links">
+                <a href="index.php?action=barber_forgot_password" class="forgot-link">Esqueci minha senha</a>
+            </div>
         </section>
 
     </main>

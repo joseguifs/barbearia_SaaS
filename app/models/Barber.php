@@ -56,6 +56,16 @@ class Barber
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function updatePassword($idBarbeiro, $senhaHash)
+    {
+        $sql = "UPDATE barbeiro SET senha = :senha WHERE id_barbeiro = :id_barbeiro";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':senha', $senhaHash);
+        $stmt->bindValue(':id_barbeiro', $idBarbeiro, PDO::PARAM_INT);
+
+        return $stmt->execute();
+    }
+
     public function findWithServices($id)
     {
         $barber = $this->find($id);

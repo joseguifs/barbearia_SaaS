@@ -37,11 +37,19 @@ switch ($action) {
         (new AuthController($pdo))->forgotPassword();
         break;
 
+    case 'barber_forgot_password':
+        (new AuthController($pdo))->barberForgotPassword();
+        break;
+
     case 'forgot_password_submit':
         (new AuthController($pdo))->handleForgotPassword();
         break;
 
     case 'reset_password_form':
+        (new AuthController($pdo))->resetPasswordForm();
+        break;
+
+    case 'barber_reset_password_form':
         (new AuthController($pdo))->resetPasswordForm();
         break;
 
@@ -155,6 +163,10 @@ switch ($action) {
 
     case 'api_auth_reset_password':
         (new AuthApi($pdo))->resetPassword();
+        break;
+
+    case 'api_barber_reset_password':
+        (new AuthApi($pdo))->barberResetPassword();
         break;
 
     case 'api_user': # api de usuarios, com todos os verbos para teste

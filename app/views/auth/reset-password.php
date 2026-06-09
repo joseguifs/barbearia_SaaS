@@ -143,7 +143,7 @@ if (!function_exists('e')) {
                 <div class="actions">
 
                     <a
-                        href="index.php?action=login"
+                        href="index.php?action=<?php echo ($role ?? 'client') === 'barber' ? 'barber_login' : 'login'; ?>"
                         class="action-link login"
                     >
                         VOLTAR AO LOGIN

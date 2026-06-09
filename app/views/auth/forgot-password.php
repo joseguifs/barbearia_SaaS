@@ -34,6 +34,7 @@ if (!function_exists('e')) {
             </p>
 
             <form action="index.php?action=forgot_password_submit" method="POST" id="forgot-form">
+                <input type="hidden" name="role" value="<?= e($data['role'] ?? 'client') ?>">
 
                 <div class="form-group">
                     <label for="email">E-mail</label>
@@ -63,13 +64,19 @@ if (!function_exists('e')) {
                 </button>
 
                 <div class="actions">
-                    <a href="index.php?action=login" class="action-link login">
-                        VOLTAR AO LOGIN
-                    </a>
+                    <?php if (($data['role'] ?? 'client') === 'barber'): ?>
+                        <a href="index.php?action=barber_login" class="action-link login">
+                            VOLTAR AO LOGIN
+                        </a>
+                    <?php else: ?>
+                        <a href="index.php?action=login" class="action-link login">
+                            VOLTAR AO LOGIN
+                        </a>
 
-                    <a href="index.php?action=user_create" class="action-link register">
-                        CRIAR CONTA
-                    </a>
+                        <a href="index.php?action=user_create" class="action-link register">
+                            CRIAR CONTA
+                        </a>
+                    <?php endif; ?>
                 </div>
             </form>
         </section>
