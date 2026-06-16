@@ -17,6 +17,7 @@ Este repositório contém toda a documentação relacionada ao desenvolvimento, 
 - [🏗️ Entidades e Responsabilidades](#️-entidades-e-responsabilidades-do-sistema)
 - [🏛️ Arquitetura](#️-arquitetura)
 - [💻 Tecnologias Utilizadas](#-tecnologias-utilizadas)
+- [⚙️ Como Executar o Projeto](#️-como-executar-o-projeto)
 - [🧠 Metodologia](#-metodologia)
 
 ---
@@ -114,6 +115,28 @@ O sistema segue o padrão arquitetural **MVC (Model-View-Controller)**.
 * **Frontend:** HTML, CSS, JavaScript
 * **Banco de Dados:** MariaDB
 * **Versionamento:** Git + GitHub
+
+---
+
+---
+
+# ⚙️ Como Executar o Projeto
+
+As instruções completas para configurar e executar o BarberTime em ambiente local estão disponíveis no documento abaixo:
+
+- [*Passo a passo para executar o projeto*](Markdowns/ExecuteProject/Instruction.md)
+
+O documento contém orientações sobre:
+
+- instalação e uso do XAMPP;
+- configuração do Apache;
+- configuração do MariaDB/MySQL;
+- criação do banco de dados;
+- execução dos scripts `schema.sql` e `seed.sql`;
+- configuração do arquivo `config/database.php`;
+- acesso às rotas principais do sistema;
+- contas iniciais para teste;
+- possíveis problemas durante a execução.
 
 ---
 
