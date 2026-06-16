@@ -1,4 +1,4 @@
-## Sprint 3: Implementação do sistema de admin e exclusão de conta do usuário
+## Sprint 5: Implementação do sistema de admin e exclusão de conta do usuário
 
 **Valor da Sprint:**  
 Desenvolvido todo o sistema de gerenciamento para o admin sobre as demais entidades além de possibilidade de exclusão de conta diretamente pelos usuários.
