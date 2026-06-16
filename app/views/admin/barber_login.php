@@ -5,8 +5,7 @@
     <title>Login do Barbeiro - BarberTime</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="/barbearia_SaaS/app/css/login-barber.css">
-
+    <link rel="stylesheet" href="/barbearia_SaaS/app/css/login-barber.css?v=2">
 </head>
 
 <body>
@@ -85,6 +84,15 @@
                 <button type="submit" id="loginButton" class="login-button">
                     Entrar como barbeiro
                 </button>
+
+                <div style="margin-top: 16px; text-align: center;">
+                    <a
+                        href="index.php?action=barber_forgot_password"
+                        style="color: #c59d5f; text-decoration: none; font-size: 14px; font-weight: 800;"
+                    >
+                        Esqueci minha senha
+                    </a>
+                </div>
             </form>
 
             <div id="result" class="result"></div>
@@ -135,7 +143,16 @@
                     })
                 });
 
-                const data = await response.json();
+                let data;
+
+                try {
+                    data = await response.json();
+                } catch (jsonError) {
+                    showResult('error', 'A API retornou uma resposta inválida.');
+                    loginButton.disabled = false;
+                    loginButton.textContent = 'Entrar como barbeiro';
+                    return;
+                }
 
                 if (!response.ok || !data.success) {
                     showResult('error', data.message || 'Erro ao realizar login.');
