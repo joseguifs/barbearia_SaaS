@@ -224,6 +224,37 @@ body {
     margin-top: 8px;
 }
 
+.delete-account-form {
+    margin: 0;
+}
+
+.btn-danger-account {
+    min-height: 48px;
+    padding: 0 20px;
+
+    border-radius: 14px;
+    border: 1px solid rgba(255, 90, 90, .22);
+
+    background: rgba(183, 28, 28, .16);
+    color: #ffb7b7;
+
+    font-weight: 800;
+    cursor: pointer;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: .25s ease;
+}
+
+.btn-danger-account:hover {
+    background: rgba(183, 28, 28, .28);
+    border-color: rgba(255, 90, 90, .38);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
 @media(max-width: 760px) {
     .topbar {
         padding: 16px;
@@ -252,4 +283,10 @@ body {
     .actions {
         flex-direction: column;
     }
+
+    .delete-account-form,
+    .btn-danger-account {
+        width: 100%;
+    }
+    
 }

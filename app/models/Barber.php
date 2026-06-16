@@ -97,25 +97,37 @@ class Barber
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function create($nome, $email = null, $servicos = [])
+    public function create($nome, $email, $senhaHash, $servicos = [])
     {
+        $this->pdo->beginTransaction();
+
         try {
-            $this->pdo->beginTransaction();
-
-            $email = $this->normalizeEmail($email);
-
-            $sql = "INSERT INTO barbeiro (nome, email)
-                    VALUES (:nome, :email)";
+            $sql = "
+                INSERT INTO barbeiro (nome, email, senha)
+                VALUES (:nome, :email, :senha)
+            ";
 
             $stmt = $this->pdo->prepare($sql);
             $stmt->bindValue(':nome', $nome);
             $stmt->bindValue(':email', $email);
+            $stmt->bindValue(':senha', $senhaHash);
             $stmt->execute();
 
-            $idBarbeiro = $this->pdo->lastInsertId();
+            $idBarbeiro = (int) $this->pdo->lastInsertId();
 
-            if (is_array($servicos) && count($servicos) > 0) {
-                $this->syncServices($idBarbeiro, $servicos);
+            if (!empty($servicos)) {
+                $sqlServico = "
+                    INSERT INTO barbeiro_servico (id_barbeiro, id_servico)
+                    VALUES (:id_barbeiro, :id_servico)
+                ";
+
+                $stmtServico = $this->pdo->prepare($sqlServico);
+
+                foreach ($servicos as $idServico) {
+                    $stmtServico->bindValue(':id_barbeiro', $idBarbeiro, PDO::PARAM_INT);
+                    $stmtServico->bindValue(':id_servico', (int) $idServico, PDO::PARAM_INT);
+                    $stmtServico->execute();
+                }
             }
 
             $this->pdo->commit();
@@ -123,15 +135,12 @@ class Barber
             return $idBarbeiro;
 
         } catch (Exception $e) {
-            if ($this->pdo->inTransaction()) {
-                $this->pdo->rollBack();
-            }
-
+            $this->pdo->rollBack();
             throw $e;
         }
     }
 
-    public function update($id, $nome = null, $email = null, $servicos = null)
+    public function update($id, $nome = null, $email = null, $servicos = null, $senhaHash = null)
     {
         $barber = $this->find($id);
 
@@ -153,6 +162,11 @@ class Barber
             if ($email !== null) {
                 $fields[] = "email = :email";
                 $params[':email'] = $this->normalizeEmail($email);
+            }
+
+            if ($senhaHash !== null) {
+                $fields[] = "senha = :senha";
+                $params[':senha'] = $senhaHash;
             }
 
             if (!empty($fields)) {
@@ -433,5 +447,20 @@ class Barber
         }
 
         return $email;
+    }
+
+    public function updatePassword($idBarbeiro, $senhaHash)
+    {
+        $sql = "
+            UPDATE barbeiro
+            SET senha = :senha
+            WHERE id_barbeiro = :id_barbeiro
+        ";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':senha', $senhaHash);
+        $stmt->bindValue(':id_barbeiro', $idBarbeiro, PDO::PARAM_INT);
+
+        return $stmt->execute();
     }
 }

@@ -43,6 +43,8 @@ $dataMinima = date('Y-m-d');
             <a href="index.php?action=scheduling_create" class="active">Agendar</a>
             <a href="index.php?action=scheduling_list">Meus Agendamentos</a>
             <a href="index.php?action=logout" class="btn-logout">Sair</a>
+            <a href="index.php?action=scheduling_history">Histórico</a>
+
         </nav>
     </header>
 

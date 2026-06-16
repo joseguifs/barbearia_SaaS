@@ -485,6 +485,58 @@ class Scheduling
         return false;
     }
 
+    public function getHistoryByClient($idCliente)
+    {
+        $sql = "SELECT 
+                    a.id_agendamento,
+                    a.id_cliente,
+                    a.id_barbeiro,
+                    a.data_hora,
+                    a.descricao,
+                    a.status,
+                    c.nome AS cliente_nome,
+                    b.nome AS barbeiro_nome
+                FROM agendamento a
+                INNER JOIN cliente c 
+                    ON a.id_cliente = c.id_cliente
+                INNER JOIN barbeiro b 
+                    ON a.id_barbeiro = b.id_barbeiro
+                WHERE a.id_cliente = :id_cliente
+                AND NOT (
+                        a.status IN ('pendente', 'agendado')
+                        AND a.data_hora >= NOW()
+                )
+                ORDER BY a.data_hora DESC";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':id_cliente', $idCliente, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $agendamentos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($agendamentos as &$agendamento) {
+            $idAgendamento = $agendamento['id_agendamento'];
+
+            $servicos = $this->getServicesBySchedulingId($idAgendamento);
+
+            $nomesServicos = [];
+
+            foreach ($servicos as $servico) {
+                $nomesServicos[] = $servico['nome'];
+            }
+
+            $agendamento['servicos'] = $servicos;
+
+            $agendamento['servicos_texto'] = !empty($nomesServicos)
+                ? implode(' + ', $nomesServicos)
+                : 'Serviço não informado';
+
+            $agendamento['valor_total'] = $this->getTotalValueBySchedulingId($idAgendamento);
+        }
+
+        return $agendamentos;
+    }
+
 
     public function deleteByIdAndClient($idAgendamento, $idCliente)
     {
