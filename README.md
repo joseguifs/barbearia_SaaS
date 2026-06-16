@@ -76,6 +76,7 @@ Nesta seção estão documentados todos os processos relacionados às sprints do
 - **Sprint 2** — [*Planejamento Sprint 2*](Markdowns/Sprints/Sprint2.md)
 - **Sprint 3** — [*Planejamento Sprint 3*](Markdowns/Sprints/Sprint3.md)
 - **Sprint 4** — [*Planejamento Sprint 4*](Markdowns/Sprints/Sprint4.md)
+- **Sprint 5** — [*Planejamento Sprint 5*](Markdowns/Sprints/Sprint5.md)
 
 ---
 
