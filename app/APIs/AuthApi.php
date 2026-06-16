@@ -2,16 +2,19 @@
 require_once __DIR__ . '/BaseApi.php';
 require_once __DIR__ . '/../models/Client.php';
 require_once __DIR__ . '/../models/Barber.php';
+require_once __DIR__ . '/../models/Admin.php';
 
 class AuthApi extends BaseApi
 {
     private $clientModel;
     private $barberModel;
+    private $adminModel;
 
     public function __construct($pdo)
     {
         $this->clientModel = new Client($pdo);
         $this->barberModel = new Barber($pdo);
+        $this->adminModel = new Admin($pdo);
     }
 
     public function login()
@@ -302,5 +305,187 @@ class AuthApi extends BaseApi
         ]);
     }
 
+
+    public function loginAdmin()
+    {
+        $this->startSessionIfNeeded();
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->json([
+                'success' => false,
+                'message' => 'Método não permitido.'
+            ], 405);
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true);
+
+        if (!is_array($input)) {
+            $this->json([
+                'success' => false,
+                'message' => 'JSON inválido.'
+            ], 400);
+        }
+
+        $email = trim($input['email'] ?? '');
+        $senha = trim($input['senha'] ?? '');
+
+        if ($email === '' || $senha === '') {
+            $this->json([
+                'success' => false,
+                'message' => 'Preencha email e senha.'
+            ], 422);
+        }
+
+        $admin = $this->adminModel->findByEmail($email);
+
+        if (!$admin || !password_verify($senha, $admin['senha'])) {
+            $this->json([
+                'success' => false,
+                'message' => 'Email ou senha inválidos.'
+            ], 401);
+        }
+
+        session_regenerate_id(true);
+
+        unset(
+            $_SESSION['id_cliente'],
+            $_SESSION['cliente_nome'],
+            $_SESSION['cliente_email'],
+            $_SESSION['id_barbeiro'],
+            $_SESSION['barbeiro_nome'],
+            $_SESSION['barbeiro_email']
+        );
+
+        $_SESSION['id_admin'] = $admin['id_admin'];
+        $_SESSION['admin_nome'] = $admin['nome'];
+        $_SESSION['admin_email'] = $admin['email'];
+        $_SESSION['tipo_usuario'] = 'admin';
+
+        $this->json([
+            'success' => true,
+            'message' => 'Login de administrador realizado com sucesso.',
+            'user' => [
+                'id_admin' => $admin['id_admin'],
+                'nome' => $admin['nome'],
+                'email' => $admin['email'],
+                'tipo_usuario' => 'admin'
+            ],
+            'redirect' => 'index.php?action=admin_home'
+        ]);
+    }
+
+
+    public function adminMe()
+    {
+        $this->startSessionIfNeeded();
+
+        if (empty($_SESSION['id_admin'])) {
+            $this->json([
+                'authenticated' => false
+            ]);
+        }
+
+        $this->json([
+            'authenticated' => true,
+            'user' => [
+                'id_admin' => $_SESSION['id_admin'],
+                'nome' => $_SESSION['admin_nome'] ?? '',
+                'email' => $_SESSION['admin_email'] ?? '',
+                'tipo_usuario' => $_SESSION['tipo_usuario'] ?? 'admin'
+            ]
+        ]);
+    }
+
+
+    public function resetBarberPassword()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'PUT') {
+            $this->json([
+                'success' => false,
+                'message' => 'Método não permitido.'
+            ], 405);
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true);
+
+        if (!is_array($input)) {
+            $this->json([
+                'success' => false,
+                'message' => 'JSON inválido.'
+            ], 400);
+        }
+
+        $email = trim($input['email'] ?? '');
+        $senha = trim($input['senha'] ?? '');
+        $confirmarSenha = trim($input['confirmar_senha'] ?? '');
+
+        if ($email === '') {
+            $this->json([
+                'success' => false,
+                'message' => 'E-mail obrigatório.'
+            ], 422);
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $this->json([
+                'success' => false,
+                'message' => 'Informe um e-mail válido.'
+            ], 422);
+        }
+
+        if ($senha === '') {
+            $this->json([
+                'success' => false,
+                'message' => 'A nova senha é obrigatória.'
+            ], 422);
+        }
+
+        if (strlen($senha) < 6) {
+            $this->json([
+                'success' => false,
+                'message' => 'A senha deve ter pelo menos 6 caracteres.'
+            ], 422);
+        }
+
+        if ($confirmarSenha === '') {
+            $this->json([
+                'success' => false,
+                'message' => 'A confirmação de senha é obrigatória.'
+            ], 422);
+        }
+
+        if ($senha !== $confirmarSenha) {
+            $this->json([
+                'success' => false,
+                'message' => 'As senhas não coincidem.'
+            ], 422);
+        }
+
+        $barbeiro = $this->barberModel->findByEmail($email);
+
+        if (!$barbeiro) {
+            $this->json([
+                'success' => false,
+                'message' => 'Barbeiro não encontrado.'
+            ], 404);
+        }
+
+        $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
+
+        $sucesso = $this->barberModel->updatePassword($barbeiro['id_barbeiro'], $senhaHash);
+
+        if (!$sucesso) {
+            $this->json([
+                'success' => false,
+                'message' => 'Não foi possível redefinir a senha.'
+            ], 500);
+        }
+
+        $this->json([
+            'success' => true,
+            'message' => 'Senha do barbeiro redefinida com sucesso.',
+            'redirect' => 'index.php?action=barber_login'
+        ]);
+    }
 
 }

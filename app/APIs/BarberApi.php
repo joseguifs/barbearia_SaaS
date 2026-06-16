@@ -123,19 +123,38 @@ class BarberApi
 
             $nome = trim($input['nome'] ?? '');
             $email = array_key_exists('email', $input) ? trim($input['email']) : null;
+            $senha = trim($input['senha'] ?? '');
             $servicos = $input['servicos'] ?? [];
 
             if (empty($nome)) {
                 $this->response(false, 'O nome do barbeiro é obrigatório.', null, 400);
             }
 
+            if (empty($email)) {
+                $this->response(false, 'O e-mail do barbeiro é obrigatório.', null, 400);
+            }
+
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $this->response(false, 'Informe um e-mail válido para o barbeiro.', null, 400);
+            }
+
+            if (empty($senha)) {
+                $this->response(false, 'A senha do barbeiro é obrigatória.', null, 400);
+            }
+
+            if (strlen($senha) < 5) {
+                $this->response(false, 'A senha deve ter pelo menos 5 caracteres.', null, 400);
+            }
+
             if (!is_array($servicos)) {
                 $this->response(false, 'O campo servicos deve ser uma lista de IDs.', null, 400);
             }
 
+            $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
+
             $barberModel = new Barber($this->pdo);
 
-            $idBarbeiro = $barberModel->create($nome, $email, $servicos);
+            $idBarbeiro = $barberModel->create($nome, $email, $senhaHash, $servicos);
 
             $barber = $barberModel->findWithServices($idBarbeiro);
 
@@ -165,6 +184,7 @@ class BarberApi
 
             $nome = null;
             $email = null;
+            $senhaHash = null;
             $servicos = null;
 
             if (array_key_exists('nome', $input)) {
@@ -179,6 +199,18 @@ class BarberApi
                 $email = trim($input['email']);
             }
 
+            if (array_key_exists('senha', $input)) {
+                $senha = trim($input['senha']);
+
+                if ($senha !== '') {
+                    if (strlen($senha) < 5) {
+                        $this->response(false, 'A nova senha deve ter pelo menos 5 caracteres.', null, 400);
+                    }
+
+                    $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
+                }
+            }
+
             if (array_key_exists('servicos', $input)) {
                 if (!is_array($input['servicos'])) {
                     $this->response(false, 'O campo servicos deve ser uma lista de IDs.', null, 400);
@@ -187,13 +219,13 @@ class BarberApi
                 $servicos = $input['servicos'];
             }
 
-            if ($nome === null && $email === null && $servicos === null) {
+            if ($nome === null && $email === null && $senhaHash === null && $servicos === null) {
                 $this->response(false, 'Informe pelo menos um campo para atualizar.', null, 400);
             }
 
             $barberModel = new Barber($this->pdo);
 
-            $updated = $barberModel->update($id, $nome, $email, $servicos);
+            $updated = $barberModel->update($id, $nome, $email, $servicos, $senhaHash);
 
             if (!$updated) {
                 $this->response(false, 'Barbeiro não encontrado.', null, 404);

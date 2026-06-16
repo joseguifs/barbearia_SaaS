@@ -184,4 +184,22 @@ class SchedulingController
 
         echo "Não foi possível atualizar o agendamento.";
     }
+
+    public function history()
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if (empty($_SESSION['id_cliente'])) {
+            header('Location: index.php?action=login');
+            exit;
+        }
+
+        $idCliente = (int) $_SESSION['id_cliente'];
+
+        $historico = $this->schedulingModel->getHistoryByClient($idCliente);
+
+        require __DIR__ . '/../views/scheduling/history.php';
+    }
 }

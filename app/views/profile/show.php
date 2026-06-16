@@ -23,6 +23,7 @@ if (!function_exists('e')) {
             <a href="index.php?action=scheduling_create">Agendar</a>
             <a href="index.php?action=scheduling_get">Meus Agendamentos</a>
             <a href="index.php?action=profile" class="active">Perfil</a>
+            <a href="index.php?action=scheduling_history">Histórico</a>
             <a href="index.php?action=logout">Sair</a>
         </nav>
     </header>
@@ -37,6 +38,12 @@ if (!function_exists('e')) {
         <?php if (isset($_GET['updated'])): ?>
             <div class="alert success">
                 Perfil atualizado com sucesso.
+            </div>
+        <?php endif; ?>
+
+        <?php if (isset($_GET['delete_error'])): ?>
+            <div class="alert error">
+                Não foi possível excluir sua conta. Tente novamente.
             </div>
         <?php endif; ?>
 
@@ -73,6 +80,17 @@ if (!function_exists('e')) {
                 <div class="actions">
                     <a href="index.php?action=profile_edit" class="btn-primary">Editar perfil</a>
                     <a href="index.php?action=home" class="btn-secondary">Voltar</a>
+
+                    <form
+                        action="index.php?action=profile_delete"
+                        method="POST"
+                        class="delete-account-form"
+                        onsubmit="return confirm('Tem certeza que deseja excluir sua conta? Todos os seus agendamentos também serão removidos. Essa ação não pode ser desfeita.');"
+                    >
+                        <button type="submit" class="btn-danger-account">
+                            Excluir minha conta
+                        </button>
+                    </form>
                 </div>
             </div>
         </section>

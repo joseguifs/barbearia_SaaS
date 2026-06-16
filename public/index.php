@@ -133,6 +133,10 @@ switch ($action) {
         (new SchedulingController($pdo))->myAppointments();
         break;
 
+    case 'scheduling_history':
+        (new SchedulingController($pdo))->history();
+        break;
+
     case 'api_scheduling_available_times':
         (new SchedulingApi($pdo))->getAvailableTimes();
         break;
@@ -193,7 +197,7 @@ switch ($action) {
         (new BarberApi($pdo))->delete();
         break;
     
-    case 'services':
+    case 'admin_services':
         (new ServiceController($pdo))->index();
         break;
 
@@ -221,6 +225,21 @@ switch ($action) {
         require_once __DIR__ . '/../app/views/admin/barber_login.php';
         break;
 
+    case 'barber_profile':
+        (new BarberController($pdo))->profile();
+        break;
+
+
+    case 'barber_forgot_password':
+        require_once __DIR__ . '/../app/views/auth/barber_forgot_password.php';
+        break;
+
+    case 'api_barber_reset_password':
+        (new AuthApi($pdo))->resetBarberPassword();
+        break;
+
+
+    
     case 'api_barber_login':
         require_once __DIR__ . '/../app/APIs/AuthApi.php';
         $api = new AuthApi($pdo);
@@ -254,10 +273,6 @@ switch ($action) {
         $controller->show();
         break;
 
-    case 'barber_profile':
-        (new BarberController($pdo))->profile();
-        break;
-
     case 'profile':
         (new ProfileController($pdo))->show();
         break;
@@ -268,6 +283,95 @@ switch ($action) {
 
     case 'profile_update':
         (new ProfileController($pdo))->update();
+        break;
+
+    case 'profile_delete':
+        (new ProfileController($pdo))->deleteAccount();
+        break;
+
+    case 'admin_login':
+        require_once __DIR__ . '/../app/views/admin/login.php';
+        break;
+
+    case 'api_admin_login':
+        require_once __DIR__ . '/../app/APIs/AuthApi.php';
+        $api = new AuthApi($pdo);
+        $api->loginAdmin();
+        break;
+
+    case 'api_admin_me':
+        require_once __DIR__ . '/../app/APIs/AuthApi.php';
+        $api = new AuthApi($pdo);
+        $api->adminMe();
+        break;
+
+    case 'admin_home':
+        require_once __DIR__ . '/../app/controllers/AdminController.php';
+        $controller = new AdminController($pdo);
+        $controller->home();
+        break;
+
+    case 'admin_logout':
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        unset(
+            $_SESSION['id_admin'],
+            $_SESSION['admin_nome'],
+            $_SESSION['admin_email'],
+            $_SESSION['tipo_usuario']
+        );
+
+        header('Location: index.php?action=admin_login');
+        exit;
+
+    case 'admin_schedulings':
+        require_once __DIR__ . '/../app/controllers/AdminPanelController.php';
+        $controller = new AdminPanelController($pdo);
+        $controller->schedulings();
+        break;
+
+    case 'admin_scheduling_store':
+        require_once __DIR__ . '/../app/controllers/AdminPanelController.php';
+        $controller = new AdminPanelController($pdo);
+        $controller->storeScheduling();
+        break;
+
+    case 'admin_scheduling_update':
+        require_once __DIR__ . '/../app/controllers/AdminPanelController.php';
+        $controller = new AdminPanelController($pdo);
+        $controller->updateScheduling();
+        break;
+
+    case 'admin_scheduling_delete':
+        require_once __DIR__ . '/../app/controllers/AdminPanelController.php';
+        $controller = new AdminPanelController($pdo);
+        $controller->deleteScheduling();
+        break;
+
+    case 'admin_clients':
+        require_once __DIR__ . '/../app/controllers/AdminPanelController.php';
+        $controller = new AdminPanelController($pdo);
+        $controller->clients();
+        break;
+
+    case 'admin_client_store':
+        require_once __DIR__ . '/../app/controllers/AdminPanelController.php';
+        $controller = new AdminPanelController($pdo);
+        $controller->storeClient();
+        break;
+
+    case 'admin_client_update':
+        require_once __DIR__ . '/../app/controllers/AdminPanelController.php';
+        $controller = new AdminPanelController($pdo);
+        $controller->updateClient();
+        break;
+
+    case 'admin_client_delete':
+        require_once __DIR__ . '/../app/controllers/AdminPanelController.php';
+        $controller = new AdminPanelController($pdo);
+        $controller->deleteClient();
         break;
     
     default:
