@@ -16,25 +16,29 @@ class BarberController
 
     public function profile()
     {
-        // Pega o ID da URL para testes (ex: index.php?action=barber_profile&id=1)
-        // No futuro, você substituirá isso pelo $_SESSION['id_barbeiro'] quando fizer o login do barbeiro.
-        $idBarbeiro = $_GET['id'] ?? 1; 
-        
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if (empty($_SESSION['id_barbeiro'])) {
+            header('Location: index.php?action=barber_login');
+            exit;
+        }
+
+        $idBarbeiro = (int) $_SESSION['id_barbeiro'];
+
         $dadosBarbeiro = $this->barberModel->find($idBarbeiro);
-        
+
         if (!$dadosBarbeiro) {
             echo "Barbeiro não encontrado.";
             return;
         }
 
-        // Busca a agenda do dia atual
         $hoje = date('Y-m-d');
         $hojeFormatado = date('d/m/Y');
 
-         $agendamentos = $this->schedulingModel->getDailyAgenda($idBarbeiro, $hoje);
+        $agendamentos = $this->schedulingModel->getDailyAgenda($idBarbeiro, $hoje);
 
-
-        // Renderiza a view
         require_once __DIR__ . '/../views/barber/profile.php';
     }
 }

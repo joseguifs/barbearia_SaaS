@@ -204,4 +204,89 @@ class ProfileController
             return;
         }
     }
+
+    private function destroyClientSession()
+    {
+        $_SESSION = [];
+        session_unset();
+
+        if (ini_get('session.use_cookies')) {
+            $params = session_get_cookie_params();
+
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params['path'],
+                $params['domain'],
+                $params['secure'],
+                $params['httponly']
+            );
+        }
+
+        session_destroy();
+    }
+
+    public function deleteAccount()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: index.php?action=profile');
+            exit;
+        }
+
+        $idCliente = $this->requireAuth();
+
+        try {
+            $this->pdo->beginTransaction();
+
+            // 1. Remove os serviços vinculados aos agendamentos do cliente
+            $sql = "
+                DELETE FROM agendamento_servico
+                WHERE id_agendamento IN (
+                    SELECT id_agendamento
+                    FROM agendamento
+                    WHERE id_cliente = :id_cliente
+                )
+            ";
+
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindValue(':id_cliente', $idCliente, PDO::PARAM_INT);
+            $stmt->execute();
+
+            // 2. Remove os agendamentos do cliente
+            $sql = "
+                DELETE FROM agendamento
+                WHERE id_cliente = :id_cliente
+            ";
+
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindValue(':id_cliente', $idCliente, PDO::PARAM_INT);
+            $stmt->execute();
+
+            // 3. Remove a conta do cliente
+            $sql = "
+                DELETE FROM cliente
+                WHERE id_cliente = :id_cliente
+            ";
+
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindValue(':id_cliente', $idCliente, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $this->pdo->commit();
+
+            $this->destroyClientSession();
+
+            header('Location: index.php?action=login&account_deleted=1');
+            exit;
+
+        } catch (PDOException $e) {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+
+            header('Location: index.php?action=profile&delete_error=1');
+            exit;
+        }
+    }
 }
