@@ -232,6 +232,7 @@ $clienteInicial = function_exists('mb_substr')
             <a href="index.php?action=home">Início</a>
             <a href="index.php?action=scheduling_create">Agendar</a>
             <a href="index.php?action=scheduling_get&id=<?= (int)$idAgendamento ?>" class="active">Meu Agendamento</a>
+            <a href="index.php?action=scheduling_history">Histórico</a>
             <a href="index.php?action=logout" class="btn-logout">Sair</a>
         </nav>
     </header>
