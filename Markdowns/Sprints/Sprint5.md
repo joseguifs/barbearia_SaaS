@@ -47,7 +47,7 @@ Essa funcionalidade visa permitir e exibição final do projeto de forma coerent
 
 | Funcionalidade | Desenvolvedor | Revisor |
 |----------------|--------------|---------|
-| API Auth e Agendamento | José Guilherme Ferreira | Matheus Felipe |
-| API de barbeiro e testes unitários | Mario Felipe | Jose Carlos |
-| API de serviço | Matheus Felipe | Mario Felipe |
-| API de usuário  | José Carlos | José Guilherme Ferreira Sobrinho |
+| admin e exclusão | José Guilherme Ferreira | Mario Felipe |
+| Protótipos de tela | Mario Felipe | Matheus Felipe |
+| Logo da barbearia | Matheus Felipe | José Carlos  |
+| Montagem dos slides | José Carlos | José Guilherme Ferreira Sobrinho |
