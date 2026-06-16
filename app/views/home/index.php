@@ -69,6 +69,7 @@ function formatarDataHome($dataHora)
                 <a href="#agendamentos">Agendamentos</a>
                 <a href="#destaques">Serviços</a>
                 <a href="#estilos">Estilos</a>
+                <a href="index.php?action=scheduling_history">Histórico</a>
                 <a href="<?= e($perfilUrl) ?>">Perfil</a>
             </nav>
 
