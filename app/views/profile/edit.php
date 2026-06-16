@@ -23,6 +23,7 @@ if (!function_exists('e')) {
             <a href="index.php?action=scheduling_create">Agendar</a>
             <a href="index.php?action=scheduling_get">Meus Agendamentos</a>
             <a href="index.php?action=profile" class="active">Perfil</a>
+             <a href="index.php?action=scheduling_history">Histórico</a>
             <a href="index.php?action=logout">Sair</a>
         </nav>
     </header>
