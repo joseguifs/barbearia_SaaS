@@ -14,6 +14,7 @@ Este repositório contém toda a documentação relacionada ao desenvolvimento, 
 - [🚀 Benefícios da Plataforma](#-benefícios-da-plataforma)
 - [📅 Planejamento das Sprints](#-planejamento-das-sprints)
 - [📋 Requisitos do Sistema](#-requisitos-do-sistema)
+- [📖 Casos de Uso e Histórias de Usuário](#-casos-de-uso-e-histórias-de-usuário)
 - [🏗️ Entidades e Responsabilidades](#️-entidades-e-responsabilidades-do-sistema)
 - [🏛️ Arquitetura](#️-arquitetura)
 - [💻 Tecnologias Utilizadas](#-tecnologias-utilizadas)
@@ -88,6 +89,16 @@ Nesta seção encontram-se todos os requisitos funcionais e informações relaci
 
 ---
 
+# 📖 Casos de Uso e Histórias de Usuário
+
+Nesta seção estão documentados os casos de uso e as histórias de usuário do BarberTime.
+
+O documento descreve as principais interações entre os atores do sistema — **Cliente**, **Barbeiro** e **Administrador** — e relaciona cada funcionalidade aos seus respectivos requisitos funcionais.
+
+- [*Casos de Uso e Histórias de Usuário*](Markdowns/UserStoreAndCaseUse/UserStoreCaseUse.md)
+
+---
+
 # 🏗️ Entidades e Responsabilidades do Sistema
 
 Aqui estão documentadas as principais entidades do BarberTime, juntamente com suas funcionalidades e responsabilidades dentro do sistema.
@@ -102,22 +113,20 @@ O sistema segue o padrão arquitetural **MVC (Model-View-Controller)**.
 
 ## Estrutura MVC
 
-* **Model**: Responsável pelas regras de negócio, manipulação de dados e comunicação com o banco de dados.
+- **Model:** responsável pelas regras de negócio, manipulação de dados e comunicação com o banco de dados.
 
-* **View**: Responsável pela interface visual e interação com o usuário.
+- **View:** responsável pela interface visual e interação com o usuário.
 
-* **Controller**: Responsável por intermediar as requisições entre Model e View.
+- **Controller:** responsável por intermediar as requisições entre Model e View.
 
 ---
 
 # 💻 Tecnologias Utilizadas
 
-* **Backend:** PHP
-* **Frontend:** HTML, CSS, JavaScript
-* **Banco de Dados:** MariaDB
-* **Versionamento:** Git + GitHub
-
----
+- **Backend:** PHP
+- **Frontend:** HTML, CSS e JavaScript
+- **Banco de Dados:** MariaDB
+- **Versionamento:** Git e GitHub
 
 ---
 
